@@ -1,4 +1,4 @@
-Javetode
+Javenode
 ========
 
 |Discord| |Donate|
@@ -9,12 +9,12 @@ Javetode
 .. |Donate| image:: https://img.shields.io/badge/Donate-PayPal-green.svg
     :target: https://paypal.me/caoccao?locale.x=en_US
 
-Javetode is Java + V8 + Node.js. It is a Node.js simulator with Java in V8.
+Javenode is Java + V8 + Node.js. It is a Node.js simulator with Java in V8.
 
-Javetode is an extension of `Javet <https://github.com/caoccao/Javet>`_ (Java + V8). It aims at simulating Node.js with Java in Javet V8 mode. Why? Because Javet V8 mode is much more secure than the Node.js mode, but lacks of some basic features, e.g. `setTimeout`, `setInterval`, etc. So, these **must-have** API can be found in Javetode.
+Javenode is an extension of `Javet <https://github.com/caoccao/Javet>`_ (Java + V8). It aims at simulating Node.js with Java in Javet V8 mode. Why? Because Javet V8 mode is much more secure than the Node.js mode, but lacks of some basic features, e.g. `setTimeout`, `setInterval`, etc. So, these **must-have** API can be found in Javenode.
 
 ========================= ================= ================
-Feature                   Javet             Javetode
+Feature                   Javet             Javenode
 ========================= ================= ================
 External Dependencies     No                Yes
 Platform Dependent        Yes               No

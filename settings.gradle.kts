@@ -15,4 +15,4 @@
  *
  */
 
-rootProject.name = "javetode"
+rootProject.name = "javenode"

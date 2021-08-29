@@ -15,7 +15,7 @@
  *
  */
 
-package com.caoccao.javet.javetode;
+package com.caoccao.javet.javenode;
 
 public class Hello {
     public static void main(String[] args) {
