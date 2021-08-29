@@ -29,16 +29,19 @@ repositories {
 group = "com.caoccao.javet"
 version = "0.1.0"
 
+val JAVET_VERSION = "0.9.9"
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
     if (OperatingSystem.current().isMacOsX()) {
-        implementation("com.caoccao.javet:javet-macos:0.9.9")
+        implementation("com.caoccao.javet:javet-macos:${JAVET_VERSION}")
     } else {
-        implementation("com.caoccao.javet:javet:0.9.9")
+        implementation("com.caoccao.javet:javet:${JAVET_VERSION}")
     }
+    implementation("cglib:cglib:3.3.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
