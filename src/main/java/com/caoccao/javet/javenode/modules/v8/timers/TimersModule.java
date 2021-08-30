@@ -24,6 +24,8 @@ import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 
+import java.util.Arrays;
+
 public class TimersModule extends BaseModule {
 
     public TimersModule(V8Runtime v8Runtime) {
@@ -31,25 +33,32 @@ public class TimersModule extends BaseModule {
     }
 
     @V8Function
-    public V8Value setTimeout(
-            V8Value v8ValueCallback,
-            V8Value v8ValueDelay,
-            V8Value... v8ValueArgs) throws JavetException {
+    public V8Value setTimeout(V8Value... v8ValueArgs) throws JavetException {
+        if (v8ValueArgs == null || v8ValueArgs.length == 0) {
+            throw new IllegalArgumentException("setTimeout() takes a least 1 argument");
+        }
+        V8Value v8ValueCallback = v8ValueArgs[0];
         if (!(v8ValueCallback instanceof V8ValueFunction)) {
-            throw new IllegalArgumentException("[callback] must be a function");
+            throw new IllegalArgumentException("Argument [callback] must be a function");
         }
-        if (!(v8ValueDelay instanceof V8ValueInteger)) {
-            throw new IllegalArgumentException("[delay] must be an integer");
+        int delay = 0;
+        if (v8ValueArgs.length > 1) {
+            V8Value v8ValueDelay = v8ValueArgs[1];
+            if (!(v8ValueDelay instanceof V8ValueInteger)) {
+                throw new IllegalArgumentException("Argument [delay] must be an integer");
+            }
+            delay = ((V8ValueInteger) v8ValueDelay).toPrimitive();
         }
-        final int delay = ((V8ValueInteger) v8ValueDelay).toPrimitive();
         if (delay < 0) {
-            throw new IllegalArgumentException("[delay] must be a positive integer");
+            throw new IllegalArgumentException("Argument [delay] must be a positive integer");
         }
-        TimersTimeout timersTimeout = new TimersTimeout(
-                v8Runtime,
-                (V8ValueFunction) v8ValueCallback,
-                delay,
-                v8ValueArgs);
+        V8Value[] args;
+        if (v8ValueArgs.length > 2) {
+            args = Arrays.copyOfRange(v8ValueArgs, 2, v8ValueArgs.length);
+        } else {
+            args = new V8Value[0];
+        }
+        TimersTimeout timersTimeout = new TimersTimeout(v8Runtime, (V8ValueFunction) v8ValueCallback, delay, args);
         moduleReferenceQueue.add(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();
