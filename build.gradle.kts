@@ -16,6 +16,25 @@
 
 import org.gradle.internal.os.OperatingSystem
 
+object Config {
+    object Projects {
+        const val CGLIB = "cglib:cglib:${Versions.CGLIB}"
+        const val JAVET = "com.caoccao.javet:javet:${Versions.JAVET}"
+        const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
+        const val JUNIT_JUPITER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT_JUPITER}"
+        const val JUNIT_JUPITER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT_JUPITER}"
+        const val RXJAVA = "io.reactivex.rxjava3:rxjava:${Versions.RXJAVA}"
+    }
+
+    object Versions {
+        const val CGLIB = "3.3.0"
+        const val JAVET = "0.9.10"
+        const val JUNIT_JUPITER = "5.7.0"
+        const val JUNIT_PLATFORM = "1.7.0"
+        const val RXJAVA = "3.1.0"
+    }
+}
+
 plugins {
     java
     `java-library`
@@ -34,16 +53,15 @@ repositories {
 }
 
 dependencies {
-    val JAVET_VERSION = "0.9.10"
+    implementation(Config.Projects.CGLIB)
     if (OperatingSystem.current().isMacOsX()) {
-        implementation("com.caoccao.javet:javet-macos:${JAVET_VERSION}")
+        implementation(Config.Projects.JAVET_MACOS)
     } else {
-        implementation("com.caoccao.javet:javet:${JAVET_VERSION}")
+        implementation(Config.Projects.JAVET)
     }
-    implementation("io.reactivex.rxjava3:rxjava:3.1.0")
-    implementation("cglib:cglib:3.3.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    implementation(Config.Projects.RXJAVA)
+    testImplementation(Config.Projects.JUNIT_JUPITER_API)
+    testRuntimeOnly(Config.Projects.JUNIT_JUPITER_ENGINE)
 }
 
 afterEvaluate {
@@ -73,6 +91,6 @@ tasks.withType<Test> {
     systemProperty("file.encoding", "UTF-8")
 }
 
-tasks.withType<Javadoc>{
+tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
 }

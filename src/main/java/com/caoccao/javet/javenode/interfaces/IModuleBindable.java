@@ -16,23 +16,14 @@
 
 package com.caoccao.javet.javenode.interfaces;
 
-import com.caoccao.javet.exceptions.JavetError;
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.utils.JavetResourceUtils;
-import com.caoccao.javet.values.V8Value;
+import com.caoccao.javet.interfaces.IJavetClosable;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
-public interface IV8ValueConvertible {
-    V8Runtime getV8Runtime();
+import java.util.Objects;
 
-    default V8Value toV8Value() throws JavetException {
-        V8Runtime v8Runtime = getV8Runtime();
-        if (JavetResourceUtils.isClosed(v8Runtime)) {
-            throw new JavetException(JavetError.RuntimeAlreadyClosed);
-        }
-        V8ValueObject v8ValueObject = v8Runtime.createV8ValueObject();
-        v8ValueObject.bind(this);
-        return v8ValueObject;
+public interface IModuleBindable extends IJavetClosable {
+    default void bind(V8ValueObject v8ValueObject) throws JavetException {
+        Objects.requireNonNull(v8ValueObject).bind(this);
     }
 }

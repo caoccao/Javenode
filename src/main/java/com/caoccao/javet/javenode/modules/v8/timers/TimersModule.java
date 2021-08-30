@@ -19,12 +19,13 @@ package com.caoccao.javet.javenode.modules.v8.timers;
 import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.modules.BaseJavaV8Bridge;
+import com.caoccao.javet.javenode.modules.BaseModule;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 
-public class TimersModule extends BaseJavaV8Bridge {
+public class TimersModule extends BaseModule {
+
     public TimersModule(V8Runtime v8Runtime) {
         super(v8Runtime);
     }
@@ -40,11 +41,17 @@ public class TimersModule extends BaseJavaV8Bridge {
         if (!(v8ValueDelay instanceof V8ValueInteger)) {
             throw new IllegalArgumentException("[delay] must be an integer");
         }
+        final int delay = ((V8ValueInteger) v8ValueDelay).toPrimitive();
+        if (delay < 0) {
+            throw new IllegalArgumentException("[delay] must be a positive integer");
+        }
         TimersTimeout timersTimeout = new TimersTimeout(
                 v8Runtime,
                 (V8ValueFunction) v8ValueCallback,
-                (V8ValueInteger) v8ValueDelay,
+                delay,
                 v8ValueArgs);
+        moduleReferenceQueue.add(timersTimeout);
+        timersTimeout.run();
         return timersTimeout.toV8Value();
     }
 }

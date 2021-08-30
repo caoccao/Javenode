@@ -18,25 +18,52 @@ package com.caoccao.javet.javenode.modules.v8.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.modules.BaseJavaV8Bridge;
+import com.caoccao.javet.javenode.modules.BaseModuleReference;
 import com.caoccao.javet.javenode.utils.V8ValueExUtils;
+import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
-import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValueFunction;
+import io.reactivex.rxjava3.core.Observable;
 
-public class TimersTimeout extends BaseJavaV8Bridge {
+import java.util.concurrent.TimeUnit;
+
+public class TimersTimeout extends BaseModuleReference {
     protected V8Value[] v8ValueArgs;
     protected V8ValueFunction v8ValueFunctionCallback;
-    protected V8ValueInteger v8ValueIntegerDelay;
+    protected int delay;
 
     public TimersTimeout(
             V8Runtime v8Runtime,
             V8ValueFunction v8ValueFunctionCallback,
-            V8ValueInteger v8ValueIntegerDelay,
+            int delay,
             V8Value... v8ValueArgs) throws JavetException {
         super(v8Runtime);
         this.v8ValueArgs = V8ValueExUtils.toClone(v8ValueArgs);
         this.v8ValueFunctionCallback = v8ValueFunctionCallback.toClone();
-        this.v8ValueIntegerDelay = v8ValueIntegerDelay.toClone();
+        this.delay = delay;
+    }
+
+    @Override
+    public void run() {
+        Observable.timer(delay, TimeUnit.MILLISECONDS).subscribe(t -> {
+            if (!isClosed()) {
+                v8ValueFunctionCallback.call(null, v8ValueArgs);
+            }
+        });
+    }
+
+    @Override
+    public void close() throws JavetException {
+        if (!isClosed()) {
+            JavetResourceUtils.safeClose(v8ValueFunctionCallback);
+            v8ValueFunctionCallback = null;
+            JavetResourceUtils.safeClose((Object[]) v8ValueArgs);
+            v8ValueArgs = null;
+        }
+    }
+
+    @Override
+    public boolean isClosed() {
+        return JavetResourceUtils.isClosed(v8ValueFunctionCallback);
     }
 }

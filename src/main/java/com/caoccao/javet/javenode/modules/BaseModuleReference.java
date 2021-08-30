@@ -17,12 +17,12 @@
 package com.caoccao.javet.javenode.modules;
 
 import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.interfaces.IV8ValueConvertible;
+import com.caoccao.javet.javenode.interfaces.IModuleReference;
 
-public abstract class BaseJavaV8Bridge implements IV8ValueConvertible {
+public abstract class BaseModuleReference implements IModuleReference {
     protected V8Runtime v8Runtime;
 
-    public BaseJavaV8Bridge(V8Runtime v8Runtime) {
+    public BaseModuleReference(V8Runtime v8Runtime) {
         this.v8Runtime = v8Runtime;
     }
 
