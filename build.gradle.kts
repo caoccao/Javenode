@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    val JAVET_VERSION = "0.9.9"
+    val JAVET_VERSION = "0.9.10"
     if (OperatingSystem.current().isMacOsX()) {
         implementation("com.caoccao.javet:javet-macos:${JAVET_VERSION}")
     } else {

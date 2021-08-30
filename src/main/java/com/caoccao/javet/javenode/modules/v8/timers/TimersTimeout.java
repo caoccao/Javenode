@@ -19,7 +19,7 @@ package com.caoccao.javet.javenode.modules.v8.timers;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.javenode.modules.BaseJavaV8Bridge;
-import com.caoccao.javet.utils.V8ValueUtils;
+import com.caoccao.javet.javenode.utils.V8ValueExUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValueFunction;
@@ -35,7 +35,7 @@ public class TimersTimeout extends BaseJavaV8Bridge {
             V8ValueInteger v8ValueIntegerDelay,
             V8Value... v8ValueArgs) throws JavetException {
         super(v8Runtime);
-        this.v8ValueArgs = V8ValueUtils.toClone(v8ValueArgs);
+        this.v8ValueArgs = V8ValueExUtils.toClone(v8ValueArgs);
         this.v8ValueFunctionCallback = v8ValueFunctionCallback.toClone();
         this.v8ValueIntegerDelay = v8ValueIntegerDelay.toClone();
     }

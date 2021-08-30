@@ -16,8 +16,10 @@
 
 package com.caoccao.javet.javenode.interfaces;
 
+import com.caoccao.javet.exceptions.JavetError;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
@@ -26,8 +28,8 @@ public interface IV8ValueConvertible {
 
     default V8Value toV8Value() throws JavetException {
         V8Runtime v8Runtime = getV8Runtime();
-        if (v8Runtime == null || v8Runtime.isClose()) {
-            // TODO
+        if (JavetResourceUtils.isClosed(v8Runtime)) {
+            throw new JavetException(JavetError.RuntimeAlreadyClosed);
         }
         V8ValueObject v8ValueObject = v8Runtime.createV8ValueObject();
         v8ValueObject.bind(this);
