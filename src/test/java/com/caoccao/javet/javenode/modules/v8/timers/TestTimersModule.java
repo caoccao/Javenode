@@ -32,9 +32,6 @@ public class TestTimersModule {
     @Test
     public void testTimeout() throws JavetException, InterruptedException {
         try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime()) {
-            JavetStandardConsoleInterceptor javetStandardConsoleInterceptor =
-                    new JavetStandardConsoleInterceptor(v8Runtime);
-            javetStandardConsoleInterceptor.register(v8Runtime.getGlobalObject());
             try (TimersModule timersModule = new TimersModule(v8Runtime)) {
                 timersModule.bind(v8Runtime.getGlobalObject());
                 v8Runtime.getExecutor("var a = [];" +
@@ -56,7 +53,6 @@ public class TestTimersModule {
                 }
                 assertTrue(testPassed);
             } finally {
-                javetStandardConsoleInterceptor.unregister(v8Runtime.getGlobalObject());
                 v8Runtime.lowMemoryNotification();
             }
         }
