@@ -18,7 +18,7 @@ package com.caoccao.javet.javenode.modules.v8.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.modules.BaseModuleReference;
+import com.caoccao.javet.javenode.modules.BaseFunction;
 import com.caoccao.javet.javenode.utils.V8ValueExUtils;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
@@ -27,7 +27,7 @@ import io.reactivex.rxjava3.core.Observable;
 
 import java.util.concurrent.TimeUnit;
 
-public class TimersTimeout extends BaseModuleReference {
+public class TimersTimeout extends BaseFunction {
     protected V8Value[] v8ValueArgs;
     protected V8ValueFunction v8ValueFunctionCallback;
     protected int delay;

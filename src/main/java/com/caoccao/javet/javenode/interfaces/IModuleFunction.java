@@ -24,7 +24,7 @@ import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
-public interface IModuleReference extends IJavetClosable, Runnable {
+public interface IModuleFunction extends IJavetClosable, Runnable {
     V8Runtime getV8Runtime();
 
     default V8Value toV8Value() throws JavetException {

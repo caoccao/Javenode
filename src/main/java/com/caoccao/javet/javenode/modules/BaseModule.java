@@ -19,14 +19,14 @@ package com.caoccao.javet.javenode.modules;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.javenode.interfaces.IModuleBindable;
-import com.caoccao.javet.javenode.interfaces.IModuleReference;
+import com.caoccao.javet.javenode.interfaces.IModuleFunction;
 import com.caoccao.javet.utils.JavetResourceUtils;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class BaseModule implements IModuleBindable {
     protected volatile boolean closed;
-    protected ConcurrentLinkedQueue<IModuleReference> moduleReferenceQueue;
+    protected ConcurrentLinkedQueue<IModuleFunction> moduleReferenceQueue;
     protected V8Runtime v8Runtime;
 
     public BaseModule(V8Runtime v8Runtime) {
@@ -40,7 +40,7 @@ public abstract class BaseModule implements IModuleBindable {
     public void close() throws JavetException {
         if (!isClosed()) {
             while (!moduleReferenceQueue.isEmpty()) {
-                IModuleReference moduleReference = moduleReferenceQueue.poll();
+                IModuleFunction moduleReference = moduleReferenceQueue.poll();
                 if (moduleReference == null) {
                     break;
                 }

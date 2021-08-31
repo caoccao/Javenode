@@ -17,12 +17,12 @@
 package com.caoccao.javet.javenode.modules;
 
 import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.interfaces.IModuleReference;
+import com.caoccao.javet.javenode.interfaces.IModuleFunction;
 
-public abstract class BaseModuleReference implements IModuleReference {
+public abstract class BaseFunction implements IModuleFunction {
     protected V8Runtime v8Runtime;
 
-    public BaseModuleReference(V8Runtime v8Runtime) {
+    public BaseFunction(V8Runtime v8Runtime) {
         this.v8Runtime = v8Runtime;
     }
 

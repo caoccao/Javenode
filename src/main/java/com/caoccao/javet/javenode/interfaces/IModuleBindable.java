@@ -26,4 +26,9 @@ public interface IModuleBindable extends IJavetClosable {
     default void bind(V8ValueObject v8ValueObject) throws JavetException {
         Objects.requireNonNull(v8ValueObject).bind(this);
     }
+
+    default void unbind(V8ValueObject v8ValueObject) throws JavetException {
+        // TODO
+//        Objects.requireNonNull(v8ValueObject).unbind(this);
+    }
 }
