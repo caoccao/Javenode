@@ -22,16 +22,16 @@ import com.caoccao.javet.javenode.interfaces.IModuleBindable;
 import com.caoccao.javet.javenode.interfaces.IModuleFunction;
 import com.caoccao.javet.utils.JavetResourceUtils;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.LinkedList;
 
 public abstract class BaseModule implements IModuleBindable {
     protected volatile boolean closed;
-    protected ConcurrentLinkedQueue<IModuleFunction> moduleReferenceQueue;
+    protected LinkedList<IModuleFunction> moduleReferences;
     protected V8Runtime v8Runtime;
 
     public BaseModule(V8Runtime v8Runtime) {
         closed = false;
-        moduleReferenceQueue = new ConcurrentLinkedQueue<>();
+        moduleReferences = new LinkedList<>();
         this.v8Runtime = v8Runtime;
     }
 
@@ -39,8 +39,8 @@ public abstract class BaseModule implements IModuleBindable {
     @Override
     public void close() throws JavetException {
         if (!isClosed()) {
-            while (!moduleReferenceQueue.isEmpty()) {
-                IModuleFunction moduleReference = moduleReferenceQueue.poll();
+            while (!moduleReferences.isEmpty()) {
+                IModuleFunction moduleReference = moduleReferences.poll();
                 if (moduleReference == null) {
                     break;
                 }
@@ -50,13 +50,13 @@ public abstract class BaseModule implements IModuleBindable {
         }
     }
 
+    public V8Runtime getV8Runtime() {
+        return v8Runtime;
+    }
+
     @Override
     public boolean isClosed() {
         return closed;
-    }
-
-    public V8Runtime getV8Runtime() {
-        return v8Runtime;
     }
 
     public void setV8Runtime(V8Runtime v8Runtime) {

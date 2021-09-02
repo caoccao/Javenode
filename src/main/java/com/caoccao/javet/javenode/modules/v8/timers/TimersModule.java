@@ -41,7 +41,7 @@ public class TimersModule extends BaseModule {
         if (!(v8ValueCallback instanceof V8ValueFunction)) {
             throw new IllegalArgumentException("Argument [callback] must be a function");
         }
-        int delay = 0;
+        int delay = 1;
         if (v8ValueArgs.length > 1) {
             V8Value v8ValueDelay = v8ValueArgs[1];
             if (!(v8ValueDelay instanceof V8ValueInteger)) {
@@ -49,7 +49,7 @@ public class TimersModule extends BaseModule {
             }
             delay = ((V8ValueInteger) v8ValueDelay).toPrimitive();
         }
-        if (delay < 0) {
+        if (delay <= 0) {
             throw new IllegalArgumentException("Argument [delay] must be a positive integer");
         }
         V8Value[] args;
@@ -59,7 +59,7 @@ public class TimersModule extends BaseModule {
             args = new V8Value[0];
         }
         TimersTimeout timersTimeout = new TimersTimeout(v8Runtime, (V8ValueFunction) v8ValueCallback, delay, args);
-        moduleReferenceQueue.add(timersTimeout);
+        moduleReferences.add(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();
     }
