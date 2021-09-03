@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-package com.caoccao.javet.javenode.modules.v8.timers;
+package com.caoccao.javet.javenode.modules;
 
-public class TimersImmediate {
-    // TODO
+import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.interfaces.IJNFunction;
+
+public abstract class BaseJNFunction implements IJNFunction {
+    protected JNEventLoop eventLoop;
+
+    public BaseJNFunction(JNEventLoop eventLoop) {
+        this.eventLoop = eventLoop;
+    }
+
+    @Override
+    public JNEventLoop getEventLoop() {
+        return eventLoop;
+    }
 }

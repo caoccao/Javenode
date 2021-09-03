@@ -20,15 +20,16 @@ import com.caoccao.javet.exceptions.JavetError;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interfaces.IJavetClosable;
 import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
-public interface IModuleFunction extends IJavetClosable, Runnable {
-    V8Runtime getV8Runtime();
+public interface IJNFunction extends IJavetClosable, Runnable {
+    JNEventLoop getEventLoop();
 
     default V8Value toV8Value() throws JavetException {
-        V8Runtime v8Runtime = getV8Runtime();
+        V8Runtime v8Runtime = getEventLoop().getV8Runtime();
         if (JavetResourceUtils.isClosed(v8Runtime)) {
             throw new JavetException(JavetError.RuntimeAlreadyClosed);
         }

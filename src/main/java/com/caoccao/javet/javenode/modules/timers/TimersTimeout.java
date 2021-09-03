@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021. caoccao.com Sam Cao
+ * Copyright (c) 2021-2021. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,34 @@
  * limitations under the License.
  */
 
-package com.caoccao.javet.javenode.modules.v8.timers;
+package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.modules.BaseFunction;
+import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.modules.BaseJNFunction;
 import com.caoccao.javet.javenode.utils.V8ValueExUtils;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import java.util.concurrent.TimeUnit;
 
-public class TimersTimeout extends BaseFunction {
+public class TimersTimeout extends BaseJNFunction {
     protected int delay;
     protected Disposable disposable;
     protected V8Value[] v8ValueArgs;
     protected V8ValueFunction v8ValueFunctionCallback;
 
     public TimersTimeout(
-            V8Runtime v8Runtime,
+            JNEventLoop eventLoop,
             V8ValueFunction v8ValueFunctionCallback,
             int delay,
             V8Value... v8ValueArgs) throws JavetException {
-        super(v8Runtime);
+        super(eventLoop);
         this.v8ValueArgs = V8ValueExUtils.toClone(v8ValueArgs);
         this.v8ValueFunctionCallback = v8ValueFunctionCallback.toClone();
         this.delay = delay;
@@ -87,7 +88,7 @@ public class TimersTimeout extends BaseFunction {
 
     @Override
     public void run() {
-        disposable = Single.timer(delay, TimeUnit.MILLISECONDS)
+        disposable = Single.timer(delay, TimeUnit.MILLISECONDS, Schedulers.from(eventLoop.getExecutorService()))
                 .subscribe(t -> {
                     if (!isClosed()) {
                         v8ValueFunctionCallback.call(null, v8ValueArgs);

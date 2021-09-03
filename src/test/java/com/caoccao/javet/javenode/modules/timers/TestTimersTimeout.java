@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021. caoccao.com Sam Cao
+ * Copyright (c) 2021-2021. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-package com.caoccao.javet.javenode.modules.v8.timers;
+package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.exceptions.JavetExecutionException;
 import com.caoccao.javet.javenode.BaseTestJavenodeSuite;
-import com.caoccao.javet.values.reference.V8ValueArray;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestTimersTimeout extends BaseTestJavenodeSuite {
     @Test
     public void testInvalidArgumentCount() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(v8Runtime)) {
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("setTimeout();").executeVoid();
             fail("Failed to throw exception");
@@ -47,7 +40,7 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
 
     @Test
     public void testInvalidCallback() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(v8Runtime)) {
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("setTimeout(1);").executeVoid();
             fail("Failed to throw exception");
@@ -58,7 +51,7 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
 
     @Test
     public void testInvalidDelayNegativeInteger() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(v8Runtime)) {
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("setTimeout(() => {}, -1);").executeVoid();
             fail("Failed to throw exception");
@@ -69,7 +62,7 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
 
     @Test
     public void testInvalidDelayString() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(v8Runtime)) {
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("setTimeout(() => {}, 'a');").executeVoid();
             fail("Failed to throw exception");
@@ -80,7 +73,7 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
 
     @Test
     public void testRef() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(v8Runtime)) {
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             String jsonString = v8Runtime.getExecutor(
                     "const a = [];\n" +
@@ -96,62 +89,32 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
     }
 
     @Test
-    public void testRx() throws JavetException, InterruptedException {
-        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
-        Observable.timer(10, TimeUnit.MILLISECONDS, Schedulers.from(executorService))
-                .subscribe(t -> atomicBoolean.set(true));
-        executorService.awaitTermination(100, TimeUnit.MILLISECONDS);
-        assertTrue(atomicBoolean.get());
-    }
-
-    @Test
     public void testWithDelayAndArgs() throws JavetException, InterruptedException {
-        try (TimersModule timersModule = new TimersModule(v8Runtime)) {
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("var a = [];" +
                     "setTimeout((b) => {\n" +
                     "  a.push(b);\n" +
                     "}, 20, 2);\n" +
                     "a.push(1);").executeVoid();
-            boolean testPassed = false;
-            for (int i = 0; i < 100; ++i) {
-                TimeUnit.MILLISECONDS.sleep(1);
-                try (V8ValueArray v8ValueArray = v8Runtime.getGlobalObject().get("a")) {
-                    if (v8ValueArray.getLength() == 2) {
-                        assertEquals("[1,2]", v8ValueArray.toJsonString());
-                        assertTrue(i > 5);
-                        testPassed = true;
-                        break;
-                    }
-                }
-            }
-            assertTrue(testPassed);
+            assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+            eventLoop.getExecutorService().awaitTermination(50, TimeUnit.MILLISECONDS);
+            assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
         }
     }
 
     @Test
     public void testWithDelayWithoutArgs() throws JavetException, InterruptedException {
-        try (TimersModule timersModule = new TimersModule(v8Runtime)) {
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("var a = [];" +
                     "setTimeout(() => {\n" +
                     "  a.push(2);\n" +
                     "}, 20);\n" +
                     "a.push(1);").executeVoid();
-            boolean testPassed = false;
-            for (int i = 0; i < 100; ++i) {
-                TimeUnit.MILLISECONDS.sleep(1);
-                try (V8ValueArray v8ValueArray = v8Runtime.getGlobalObject().get("a")) {
-                    if (v8ValueArray.getLength() == 2) {
-                        assertEquals("[1,2]", v8ValueArray.toJsonString());
-                        assertTrue(i > 5);
-                        testPassed = true;
-                        break;
-                    }
-                }
-            }
-            assertTrue(testPassed);
+            assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+            eventLoop.getExecutorService().awaitTermination(50, TimeUnit.MILLISECONDS);
+            assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
         }
     }
 }

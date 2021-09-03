@@ -17,22 +17,23 @@
 package com.caoccao.javet.javenode.modules;
 
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.interfaces.IModuleBindable;
-import com.caoccao.javet.javenode.interfaces.IModuleFunction;
+import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.interfaces.IJNFunction;
+import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.utils.JavetResourceUtils;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
-public abstract class BaseModule implements IModuleBindable {
+public abstract class BaseJNModule implements IJNModule {
     protected volatile boolean closed;
-    protected LinkedList<IModuleFunction> moduleReferences;
-    protected V8Runtime v8Runtime;
+    protected JNEventLoop eventLoop;
+    protected LinkedList<IJNFunction> moduleReferences;
 
-    public BaseModule(V8Runtime v8Runtime) {
+    public BaseJNModule(JNEventLoop eventLoop) {
         closed = false;
+        this.eventLoop = Objects.requireNonNull(eventLoop);
         moduleReferences = new LinkedList<>();
-        this.v8Runtime = v8Runtime;
     }
 
 
@@ -40,7 +41,7 @@ public abstract class BaseModule implements IModuleBindable {
     public void close() throws JavetException {
         if (!isClosed()) {
             while (!moduleReferences.isEmpty()) {
-                IModuleFunction moduleReference = moduleReferences.poll();
+                IJNFunction moduleReference = moduleReferences.poll();
                 if (moduleReference == null) {
                     break;
                 }
@@ -50,16 +51,13 @@ public abstract class BaseModule implements IModuleBindable {
         }
     }
 
-    public V8Runtime getV8Runtime() {
-        return v8Runtime;
+    @Override
+    public JNEventLoop getEventLoop() {
+        return eventLoop;
     }
 
     @Override
     public boolean isClosed() {
         return closed;
-    }
-
-    public void setV8Runtime(V8Runtime v8Runtime) {
-        this.v8Runtime = v8Runtime;
     }
 }

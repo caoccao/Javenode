@@ -22,11 +22,15 @@ import com.caoccao.javet.interop.V8Runtime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.concurrent.TimeUnit;
+
 public abstract class BaseTestJavenodeSuite {
+    protected JNEventLoop eventLoop;
     protected V8Runtime v8Runtime;
 
     @AfterEach
     public void afterEach() throws JavetException {
+        eventLoop.close();
         v8Runtime.lowMemoryNotification();
         v8Runtime.close();
     }
@@ -34,5 +38,8 @@ public abstract class BaseTestJavenodeSuite {
     @BeforeEach
     public void beforeEach() throws JavetException {
         v8Runtime = V8Host.getV8Instance().createV8Runtime();
+        eventLoop = new JNEventLoop(v8Runtime);
+        eventLoop.setAwaitTimeout(5);
+        eventLoop.setAwaitTimeUnit(TimeUnit.SECONDS);
     }
 }

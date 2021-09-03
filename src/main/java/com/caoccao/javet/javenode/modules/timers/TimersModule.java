@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021. caoccao.com Sam Cao
+ * Copyright (c) 2021-2021. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.caoccao.javet.javenode.modules.v8.timers;
+package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.modules.BaseModule;
+import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.modules.BaseJNModule;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 
 import java.util.Arrays;
 
-public class TimersModule extends BaseModule {
+public class TimersModule extends BaseJNModule {
 
-    public TimersModule(V8Runtime v8Runtime) {
-        super(v8Runtime);
+    public TimersModule(JNEventLoop eventLoop) {
+        super(eventLoop);
     }
 
     @V8Function
@@ -58,7 +58,7 @@ public class TimersModule extends BaseModule {
         } else {
             args = new V8Value[0];
         }
-        TimersTimeout timersTimeout = new TimersTimeout(v8Runtime, (V8ValueFunction) v8ValueCallback, delay, args);
+        TimersTimeout timersTimeout = new TimersTimeout(eventLoop, (V8ValueFunction) v8ValueCallback, delay, args);
         moduleReferences.add(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();

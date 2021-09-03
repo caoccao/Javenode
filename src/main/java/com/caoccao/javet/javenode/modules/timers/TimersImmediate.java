@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021. caoccao.com Sam Cao
+ * Copyright (c) 2021-2021. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,8 @@
  * limitations under the License.
  */
 
-package com.caoccao.javet.javenode.modules;
+package com.caoccao.javet.javenode.modules.timers;
 
-import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.interfaces.IModuleFunction;
-
-public abstract class BaseFunction implements IModuleFunction {
-    protected V8Runtime v8Runtime;
-
-    public BaseFunction(V8Runtime v8Runtime) {
-        this.v8Runtime = v8Runtime;
-    }
-
-    @Override
-    public V8Runtime getV8Runtime() {
-        return v8Runtime;
-    }
-
-    public void setV8Runtime(V8Runtime v8Runtime) {
-        this.v8Runtime = v8Runtime;
-    }
+public class TimersImmediate {
+    // TODO
 }
