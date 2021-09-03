@@ -48,7 +48,9 @@ public class TimersTimeout extends BaseTimersFunction {
     public V8Value refresh(V8Value thisObject) {
         if (hasRef()) {
             disposable.dispose();
-            eventLoop.decrementBlockingEventCount();
+            if (!recurrent) {
+                eventLoop.decrementBlockingEventCount();
+            }
             run();
         }
         return thisObject;
