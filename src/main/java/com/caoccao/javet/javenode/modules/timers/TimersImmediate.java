@@ -28,7 +28,7 @@ public class TimersImmediate extends BaseTimersFunction {
             JNEventLoop eventLoop,
             V8ValueFunction v8ValueFunctionCallback,
             V8Value... v8ValueArgs) throws JavetException {
-        super(eventLoop, v8ValueFunctionCallback, v8ValueArgs);
+        super(eventLoop, false, v8ValueFunctionCallback, 1, v8ValueArgs);
     }
 
     @V8Function

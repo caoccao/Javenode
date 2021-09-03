@@ -71,6 +71,21 @@ public class TimersModule extends BaseJNModule {
     }
 
     @V8Function
+    public V8Value setInterval(V8Value... v8ValueArgs) throws JavetException {
+        if (v8ValueArgs == null || v8ValueArgs.length == 0) {
+            throw new IllegalArgumentException("setInterval() takes a least 1 argument");
+        }
+        V8Value v8ValueCallback = v8ValueArgs[0];
+        validateCallback(v8ValueCallback);
+        int delay = extractAndValidateDelay(v8ValueArgs);
+        TimersTimeout timersTimeout = new TimersTimeout(
+                eventLoop, true, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
+        moduleReferences.add(timersTimeout);
+        timersTimeout.run();
+        return timersTimeout.toV8Value();
+    }
+
+    @V8Function
     public V8Value setTimeout(V8Value... v8ValueArgs) throws JavetException {
         if (v8ValueArgs == null || v8ValueArgs.length == 0) {
             throw new IllegalArgumentException("setTimeout() takes a least 1 argument");
@@ -79,7 +94,7 @@ public class TimersModule extends BaseJNModule {
         validateCallback(v8ValueCallback);
         int delay = extractAndValidateDelay(v8ValueArgs);
         TimersTimeout timersTimeout = new TimersTimeout(
-                eventLoop, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
+                eventLoop, false, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
         moduleReferences.add(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();
