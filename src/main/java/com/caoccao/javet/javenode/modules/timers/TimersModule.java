@@ -32,15 +32,7 @@ public class TimersModule extends BaseJNModule {
         super(eventLoop);
     }
 
-    @V8Function
-    public V8Value setTimeout(V8Value... v8ValueArgs) throws JavetException {
-        if (v8ValueArgs == null || v8ValueArgs.length == 0) {
-            throw new IllegalArgumentException("setTimeout() takes a least 1 argument");
-        }
-        V8Value v8ValueCallback = v8ValueArgs[0];
-        if (!(v8ValueCallback instanceof V8ValueFunction)) {
-            throw new IllegalArgumentException("Argument [callback] must be a function");
-        }
+    protected int extractAndValidateDelay(V8Value[] v8ValueArgs) {
         int delay = 1;
         if (v8ValueArgs.length > 1) {
             V8Value v8ValueDelay = v8ValueArgs[1];
@@ -52,15 +44,50 @@ public class TimersModule extends BaseJNModule {
         if (delay <= 0) {
             throw new IllegalArgumentException("Argument [delay] must be a positive integer");
         }
-        V8Value[] args;
-        if (v8ValueArgs.length > 2) {
-            args = Arrays.copyOfRange(v8ValueArgs, 2, v8ValueArgs.length);
+        return delay;
+    }
+
+    protected V8Value[] extractArgs(V8Value[] v8ValueArgs, int startIndex) {
+        assert startIndex >= 0;
+        if (v8ValueArgs.length > startIndex) {
+            return Arrays.copyOfRange(v8ValueArgs, startIndex, v8ValueArgs.length);
         } else {
-            args = new V8Value[0];
+            return new V8Value[0];
         }
-        TimersTimeout timersTimeout = new TimersTimeout(eventLoop, (V8ValueFunction) v8ValueCallback, delay, args);
+    }
+
+    @V8Function
+    public V8Value setImmediate(V8Value... v8ValueArgs) throws JavetException {
+        if (v8ValueArgs == null || v8ValueArgs.length == 0) {
+            throw new IllegalArgumentException("setImmediate() takes a least 1 argument");
+        }
+        V8Value v8ValueCallback = v8ValueArgs[0];
+        validateCallback(v8ValueCallback);
+        TimersImmediate timersImmediate = new TimersImmediate(
+                eventLoop, (V8ValueFunction) v8ValueCallback, extractArgs(v8ValueArgs, 1));
+        moduleReferences.add(timersImmediate);
+        timersImmediate.run();
+        return timersImmediate.toV8Value();
+    }
+
+    @V8Function
+    public V8Value setTimeout(V8Value... v8ValueArgs) throws JavetException {
+        if (v8ValueArgs == null || v8ValueArgs.length == 0) {
+            throw new IllegalArgumentException("setTimeout() takes a least 1 argument");
+        }
+        V8Value v8ValueCallback = v8ValueArgs[0];
+        validateCallback(v8ValueCallback);
+        int delay = extractAndValidateDelay(v8ValueArgs);
+        TimersTimeout timersTimeout = new TimersTimeout(
+                eventLoop, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
         moduleReferences.add(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();
+    }
+
+    protected void validateCallback(V8Value v8ValueCallback) {
+        if (!(v8ValueCallback instanceof V8ValueFunction)) {
+            throw new IllegalArgumentException("Argument [callback] must be a function");
+        }
     }
 }

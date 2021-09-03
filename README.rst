@@ -3,10 +3,10 @@ Javenode
 
 |Discord| |Donate|
 
-.. |Discord| image:: https://img.shields.io/badge/join%20our-Discord-%237289DA%20
+.. |Discord| image:: https://img.shields.io/discord/870518906115211305?label=join%20our%20Discord&style=for-the-badge
     :target: https://discord.gg/R4vvKU96gw
 
-.. |Donate| image:: https://img.shields.io/badge/Donate-PayPal-green.svg
+.. |Donate| image:: https://img.shields.io/badge/Donate-Paypal-green?style=for-the-badge
     :target: https://paypal.me/caoccao?locale.x=en_US
 
 Javenode is Java + V8 + Node.js. It is a Node.js simulator with Java in V8.

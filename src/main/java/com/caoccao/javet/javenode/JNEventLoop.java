@@ -24,15 +24,18 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class JNEventLoop implements IJavetClosable {
 
+    public static final int AWAIT_SLEEP_INTERVAL_IN_MILLIS = 1;
     public static final int DEFAULT_AWAIT_TIMEOUT = 60;
     public static final TimeUnit DEFAULT_AWAIT_TIME_UNIT = TimeUnit.SECONDS;
     public static final int DEFAULT_THREAD_POOL_SIZE = 4;
 
     protected TimeUnit awaitTimeUnit;
     protected long awaitTimeout;
+    protected AtomicInteger blockingEventCount;
     protected volatile boolean closed;
     protected ExecutorService executorService;
     protected V8Runtime v8Runtime;
@@ -44,9 +47,32 @@ public class JNEventLoop implements IJavetClosable {
     public JNEventLoop(V8Runtime v8Runtime, ExecutorService executorService) {
         awaitTimeout = DEFAULT_AWAIT_TIMEOUT;
         awaitTimeUnit = DEFAULT_AWAIT_TIME_UNIT;
+        blockingEventCount = new AtomicInteger();
         closed = false;
         this.executorService = Objects.requireNonNull(executorService);
         this.v8Runtime = Objects.requireNonNull(v8Runtime);
+    }
+
+    public boolean await() throws InterruptedException {
+        return await(awaitTimeout, awaitTimeUnit);
+    }
+
+    public boolean await(long timeout, TimeUnit timeUnit) throws InterruptedException {
+        assert timeout > 0;
+        Objects.requireNonNull(timeUnit);
+        long totalMillis = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
+        long startMillis = System.currentTimeMillis();
+        while (blockingEventCount.get() > 0) {
+            if (System.currentTimeMillis() - startMillis >= totalMillis) {
+                return false;
+            }
+            TimeUnit.MILLISECONDS.sleep(AWAIT_SLEEP_INTERVAL_IN_MILLIS);
+        }
+        return true;
+    }
+
+    protected boolean awaitTermination() throws InterruptedException {
+        return executorService.awaitTermination(awaitTimeout, awaitTimeUnit);
     }
 
     @Override
@@ -56,10 +82,11 @@ public class JNEventLoop implements IJavetClosable {
                 closed = true;
             } else {
                 try {
+                    await();
                     executorService.shutdown();
-                    if (!executorService.awaitTermination(awaitTimeout, awaitTimeUnit)) {
+                    if (!awaitTermination()) {
                         executorService.shutdownNow();
-                        if (!executorService.awaitTermination(awaitTimeout, awaitTimeUnit)) {
+                        if (!awaitTermination()) {
                             // TODO throw 805
                         }
                     }
@@ -75,6 +102,10 @@ public class JNEventLoop implements IJavetClosable {
         }
     }
 
+    public void decrementBlockingEventCount() {
+        blockingEventCount.decrementAndGet();
+    }
+
     public TimeUnit getAwaitTimeUnit() {
         return awaitTimeUnit;
     }
@@ -83,12 +114,20 @@ public class JNEventLoop implements IJavetClosable {
         return awaitTimeout;
     }
 
+    public int getBlockingEventCount() {
+        return blockingEventCount.get();
+    }
+
     public ExecutorService getExecutorService() {
         return executorService;
     }
 
     public V8Runtime getV8Runtime() {
         return v8Runtime;
+    }
+
+    public void incrementBlockingEventCount() {
+        blockingEventCount.incrementAndGet();
     }
 
     @Override

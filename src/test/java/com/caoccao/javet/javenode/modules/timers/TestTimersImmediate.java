@@ -21,17 +21,19 @@ import com.caoccao.javet.exceptions.JavetExecutionException;
 import com.caoccao.javet.javenode.BaseTestJavenodeSuite;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestTimersTimeout extends BaseTestJavenodeSuite {
+public class TestTimersImmediate extends BaseTestJavenodeSuite {
     @Test
     public void testInvalidArgumentCount() throws JavetException {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
-            v8Runtime.getExecutor("setTimeout();").executeVoid();
+            v8Runtime.getExecutor("setImmediate();").executeVoid();
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {
-            assertEquals("Error: setTimeout() takes a least 1 argument", e.getMessage());
+            assertEquals("Error: setImmediate() takes a least 1 argument", e.getMessage());
         }
     }
 
@@ -39,7 +41,7 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
     public void testInvalidCallback() throws JavetException {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
-            v8Runtime.getExecutor("setTimeout(1);").executeVoid();
+            v8Runtime.getExecutor("setImmediate(1);").executeVoid();
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {
             assertEquals("Error: Argument [callback] must be a function", e.getMessage());
@@ -47,83 +49,43 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
     }
 
     @Test
-    public void testInvalidDelayNegativeInteger() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(eventLoop)) {
-            timersModule.bind(v8Runtime.getGlobalObject());
-            v8Runtime.getExecutor("setTimeout(() => {}, -1);").executeVoid();
-            fail("Failed to throw exception");
-        } catch (JavetExecutionException e) {
-            assertEquals("Error: Argument [delay] must be a positive integer", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testInvalidDelayString() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(eventLoop)) {
-            timersModule.bind(v8Runtime.getGlobalObject());
-            v8Runtime.getExecutor("setTimeout(() => {}, 'a');").executeVoid();
-            fail("Failed to throw exception");
-        } catch (JavetExecutionException e) {
-            assertEquals("Error: Argument [delay] must be an integer", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testRef() throws JavetException {
+    public void testRef() throws JavetException, InterruptedException {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("const a = [];\n" +
-                    "const t = setTimeout(() => {}, 10000);").executeVoid();
+                    "const t = setImmediate(() => { a.push(true); });").executeVoid();
             assertEquals(1, eventLoop.getBlockingEventCount());
             v8Runtime.getExecutor("a.push(t.hasRef());").executeVoid();
-            assertEquals(1, eventLoop.getBlockingEventCount());
-            v8Runtime.getExecutor("a.push(t.refresh() == t);").executeVoid();
-            assertEquals(1, eventLoop.getBlockingEventCount());
+            eventLoop.await();
             v8Runtime.getExecutor("a.push(t.ref() == t);").executeVoid();
-            assertEquals(1, eventLoop.getBlockingEventCount());
+            assertEquals(0, eventLoop.getBlockingEventCount());
+            // RxJava needs some time to process Disposable.
+            TimeUnit.MILLISECONDS.sleep(10);
+            v8Runtime.getExecutor("a.push(t.hasRef());").executeVoid();
+            assertEquals(0, eventLoop.getBlockingEventCount());
             v8Runtime.getExecutor("a.push(t.unref() == t);").executeVoid();
             assertEquals(0, eventLoop.getBlockingEventCount());
-            v8Runtime.getExecutor("a.push(t.hasRef());").executeVoid();
-            assertEquals(0, eventLoop.getBlockingEventCount());
             String jsonString = v8Runtime.getExecutor("JSON.stringify(a);").executeString();
-            assertEquals(0, eventLoop.getBlockingEventCount());
-            assertEquals("[true,true,true,true,false]", jsonString);
+            assertEquals("[true,true,true,false,true]", jsonString);
         }
     }
 
     @Test
-    public void testWithDelayAndArgs() throws JavetException, InterruptedException {
+    public void testWithArgs() throws JavetException, InterruptedException {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("const a = [];" +
-                    "const t = setTimeout((b) => {\n" +
+                    "const t = setImmediate((b) => {\n" +
                     "  a.push(b);\n" +
-                    "}, 10, 2);\n" +
+                    "}, 2);\n" +
                     "a.push(1);").executeVoid();
             assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
             assertEquals(1, eventLoop.getBlockingEventCount());
             eventLoop.await();
-            assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
             assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
             assertEquals(0, eventLoop.getBlockingEventCount());
-        }
-    }
-
-    @Test
-    public void testWithDelayWithoutArgs() throws JavetException, InterruptedException {
-        try (TimersModule timersModule = new TimersModule(eventLoop)) {
-            timersModule.bind(v8Runtime.getGlobalObject());
-            v8Runtime.getExecutor("const a = [];" +
-                    "const t = setTimeout(() => {\n" +
-                    "  a.push(2);\n" +
-                    "}, 10);\n" +
-                    "a.push(1);").executeVoid();
-            assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
-            assertEquals(1, eventLoop.getBlockingEventCount());
-            eventLoop.await();
+            TimeUnit.MILLISECONDS.sleep(10);
             assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
-            assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
-            assertEquals(0, eventLoop.getBlockingEventCount());
         }
     }
 }

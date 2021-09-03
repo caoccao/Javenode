@@ -16,6 +16,36 @@
 
 package com.caoccao.javet.javenode.modules.timers;
 
-public class TimersImmediate {
-    // TODO
+import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.values.V8Value;
+import com.caoccao.javet.values.reference.V8ValueFunction;
+
+public class TimersImmediate extends BaseTimersFunction {
+
+    public TimersImmediate(
+            JNEventLoop eventLoop,
+            V8ValueFunction v8ValueFunctionCallback,
+            V8Value... v8ValueArgs) throws JavetException {
+        super(eventLoop, v8ValueFunctionCallback, v8ValueArgs);
+    }
+
+    @V8Function
+    @Override
+    public boolean hasRef() {
+        return super.hasRef();
+    }
+
+    @V8Function(thisObjectRequired = true)
+    @Override
+    public V8Value ref(V8Value thisObject) {
+        return super.ref(thisObject);
+    }
+
+    @V8Function(thisObjectRequired = true)
+    @Override
+    public V8Value unref(V8Value thisObject) {
+        return super.unref(thisObject);
+    }
 }
