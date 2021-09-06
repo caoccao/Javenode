@@ -31,7 +31,6 @@ public interface IJNModule extends IJavetClosable {
     JNEventLoop getEventLoop();
 
     default void unbind(V8ValueObject v8ValueObject) throws JavetException {
-        // TODO
-//        Objects.requireNonNull(v8ValueObject).unbind(this);
+        Objects.requireNonNull(v8ValueObject).unbind(this);
     }
 }

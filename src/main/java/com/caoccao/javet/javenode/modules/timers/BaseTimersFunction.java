@@ -19,7 +19,6 @@ package com.caoccao.javet.javenode.modules.timers;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.modules.BaseJNFunction;
-import com.caoccao.javet.javenode.utils.V8ValueExUtils;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueFunction;
@@ -45,7 +44,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
             V8Value... v8ValueArgs) throws JavetException {
         super(eventLoop);
         this.recurrent = recurrent;
-        this.v8ValueArgs = V8ValueExUtils.toClone(v8ValueArgs);
+        this.v8ValueArgs = JavetResourceUtils.toClone(v8ValueArgs);
         this.delay = delay;
         this.v8ValueFunctionCallback = v8ValueFunctionCallback.toClone();
         disposable = null;

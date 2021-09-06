@@ -33,6 +33,9 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
         } catch (JavetExecutionException e) {
             assertEquals("Error: setTimeout() takes a least 1 argument", e.getMessage());
         }
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
+            timersModule.unbind(v8Runtime.getGlobalObject());
+        }
     }
 
     @Test
@@ -43,6 +46,9 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {
             assertEquals("Error: Argument [callback] must be a function", e.getMessage());
+        }
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
+            timersModule.unbind(v8Runtime.getGlobalObject());
         }
     }
 
@@ -55,6 +61,9 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
         } catch (JavetExecutionException e) {
             assertEquals("Error: Argument [delay] must be a positive integer", e.getMessage());
         }
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
+            timersModule.unbind(v8Runtime.getGlobalObject());
+        }
     }
 
     @Test
@@ -66,6 +75,9 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
         } catch (JavetExecutionException e) {
             assertEquals("Error: Argument [delay] must be an integer", e.getMessage());
         }
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
+            timersModule.unbind(v8Runtime.getGlobalObject());
+        }
     }
 
     @Test
@@ -73,7 +85,7 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("const a = [];\n" +
-                    "const t = setTimeout(() => {}, 10000);").executeVoid();
+                    "var t = setTimeout(() => {}, 10000);").executeVoid();
             assertEquals(1, eventLoop.getBlockingEventCount());
             v8Runtime.getExecutor("a.push(t.hasRef());").executeVoid();
             assertEquals(1, eventLoop.getBlockingEventCount());
@@ -88,6 +100,8 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
             String jsonString = v8Runtime.getExecutor("JSON.stringify(a);").executeString();
             assertEquals(0, eventLoop.getBlockingEventCount());
             assertEquals("[true,true,true,true,false]", jsonString);
+            v8Runtime.getExecutor("t = undefined;").executeVoid();
+            timersModule.unbind(v8Runtime.getGlobalObject());
         }
     }
 
@@ -96,7 +110,7 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("const a = [];" +
-                    "const t = setTimeout((b) => {\n" +
+                    "var t = setTimeout((b) => {\n" +
                     "  a.push(b);\n" +
                     "}, 10, 2);\n" +
                     "a.push(1);").executeVoid();
@@ -106,6 +120,8 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
             assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
             assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
             assertEquals(0, eventLoop.getBlockingEventCount());
+            v8Runtime.getExecutor("t = undefined;").executeVoid();
+            timersModule.unbind(v8Runtime.getGlobalObject());
         }
     }
 
@@ -114,7 +130,7 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("const a = [];" +
-                    "const t = setTimeout(() => {\n" +
+                    "var t = setTimeout(() => {\n" +
                     "  a.push(2);\n" +
                     "}, 10);\n" +
                     "a.push(1);").executeVoid();
@@ -124,6 +140,8 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
             assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
             assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
             assertEquals(0, eventLoop.getBlockingEventCount());
+            v8Runtime.getExecutor("t = undefined;").executeVoid();
+            timersModule.unbind(v8Runtime.getGlobalObject());
         }
     }
 }

@@ -35,6 +35,9 @@ public class TestTimersImmediate extends BaseTestJavenodeSuite {
         } catch (JavetExecutionException e) {
             assertEquals("Error: setImmediate() takes a least 1 argument", e.getMessage());
         }
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
+            timersModule.unbind(v8Runtime.getGlobalObject());
+        }
     }
 
     @Test
@@ -46,6 +49,9 @@ public class TestTimersImmediate extends BaseTestJavenodeSuite {
         } catch (JavetExecutionException e) {
             assertEquals("Error: Argument [callback] must be a function", e.getMessage());
         }
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
+            timersModule.unbind(v8Runtime.getGlobalObject());
+        }
     }
 
     @Test
@@ -53,7 +59,7 @@ public class TestTimersImmediate extends BaseTestJavenodeSuite {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("const a = [];\n" +
-                    "const t = setImmediate(() => { a.push(true); });").executeVoid();
+                    "var t = setImmediate(() => { a.push(true); });").executeVoid();
             assertEquals(1, eventLoop.getBlockingEventCount());
             v8Runtime.getExecutor("a.push(t.hasRef());").executeVoid();
             eventLoop.await();
@@ -67,6 +73,8 @@ public class TestTimersImmediate extends BaseTestJavenodeSuite {
             assertEquals(0, eventLoop.getBlockingEventCount());
             String jsonString = v8Runtime.getExecutor("JSON.stringify(a);").executeString();
             assertEquals("[true,true,true,false,true]", jsonString);
+            v8Runtime.getExecutor("t = undefined;").executeVoid();
+            timersModule.unbind(v8Runtime.getGlobalObject());
         }
     }
 
@@ -75,7 +83,7 @@ public class TestTimersImmediate extends BaseTestJavenodeSuite {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
             v8Runtime.getExecutor("const a = [];" +
-                    "const t = setImmediate((b) => {\n" +
+                    "var t = setImmediate((b) => {\n" +
                     "  a.push(b);\n" +
                     "}, 2);\n" +
                     "a.push(1);").executeVoid();
@@ -86,6 +94,8 @@ public class TestTimersImmediate extends BaseTestJavenodeSuite {
             assertEquals(0, eventLoop.getBlockingEventCount());
             TimeUnit.MILLISECONDS.sleep(10);
             assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
+            v8Runtime.getExecutor("t = undefined;").executeVoid();
+            timersModule.unbind(v8Runtime.getGlobalObject());
         }
     }
 }

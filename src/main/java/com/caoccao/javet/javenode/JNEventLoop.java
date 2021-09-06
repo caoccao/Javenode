@@ -16,9 +16,11 @@
 
 package com.caoccao.javet.javenode;
 
+import com.caoccao.javet.exceptions.JavetError;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interfaces.IJavetClosable;
 import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.utils.SimpleMap;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -87,14 +89,18 @@ public class JNEventLoop implements IJavetClosable {
                     if (!awaitTermination()) {
                         executorService.shutdownNow();
                         if (!awaitTermination()) {
-                            // TODO throw 805
+                            throw new JavetException(
+                                    JavetError.RuntimeCloseFailure,
+                                    SimpleMap.of(JavetError.PARAMETER_MESSAGE, "Failed to shutdown the event loop"));
                         }
                     }
-//                } catch (JavetException e) {
-//                    throw e;
+                } catch (JavetException e) {
+                    throw e;
                 } catch (InterruptedException e) {
                     executorService.shutdownNow();
-                    // TODO throw 805
+                    throw new JavetException(
+                            JavetError.RuntimeCloseFailure,
+                            SimpleMap.of(JavetError.PARAMETER_MESSAGE, "Event loop shutdown was interrupted"));
                 } finally {
                     closed = true;
                 }
