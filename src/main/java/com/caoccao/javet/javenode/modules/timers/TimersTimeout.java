@@ -17,12 +17,18 @@
 package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.annotations.V8Property;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class TimersTimeout extends BaseTimersFunction {
+
+    protected final static AtomicInteger GLOBAL_REFERENCE_ID = new AtomicInteger(0);
+    protected int referenceId;
 
     public TimersTimeout(
             JNEventLoop eventLoop,
@@ -31,6 +37,22 @@ public class TimersTimeout extends BaseTimersFunction {
             int delay,
             V8Value... v8ValueArgs) throws JavetException {
         super(eventLoop, recurrent, v8ValueFunctionCallback, delay, v8ValueArgs);
+        referenceId = GLOBAL_REFERENCE_ID.incrementAndGet();
+    }
+
+    public static int getGlobalReferenceId() {
+        return GLOBAL_REFERENCE_ID.get();
+    }
+
+    public int getReferenceId() {
+        return referenceId;
+    }
+
+    // TODO to convert it to built-in symbol
+    @V8Property(name = "toPrimitive", symbol = true)
+    public V8ValueFunction getReferenceIdFunction() throws JavetException {
+        StringBuilder stringBuilder = new StringBuilder("() => ").append(getGlobalReferenceId());
+        return eventLoop.getV8Runtime().createV8ValueFunction(stringBuilder.toString());
     }
 
     @V8Function

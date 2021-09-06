@@ -106,6 +106,22 @@ public class TestTimersTimeout extends BaseTestJavenodeSuite {
     }
 
     @Test
+    public void testToPrimitive() throws JavetException, InterruptedException {
+        try (TimersModule timersModule = new TimersModule(eventLoop)) {
+            timersModule.bind(v8Runtime.getGlobalObject());
+            int referenceId = v8Runtime.getExecutor("var t = setTimeout(() => {\n" +
+                    "}, 10);\n" +
+                    "const referenceId = t[Symbol.for('toPrimitive')]();\n" +
+                    "t.unref();\n" +
+                    "referenceId;").executeInteger();
+            assertTrue(referenceId > 0);
+            assertTrue(TimersTimeout.getGlobalReferenceId() >= referenceId);
+            v8Runtime.getExecutor("t = undefined;").executeVoid();
+            timersModule.unbind(v8Runtime.getGlobalObject());
+        }
+    }
+
+    @Test
     public void testWithDelayAndArgs() throws JavetException, InterruptedException {
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.bind(v8Runtime.getGlobalObject());
