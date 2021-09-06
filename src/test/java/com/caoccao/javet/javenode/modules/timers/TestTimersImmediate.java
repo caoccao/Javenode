@@ -26,6 +26,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestTimersImmediate extends BaseTestTimers {
     @Test
+    public void testClearImmediate() throws JavetException {
+        v8Runtime.getExecutor("const a = [];\n" +
+                "var t = setImmediate(() => { a.push(true); });\n" +
+                "clearImmediate(t); t;").execute();
+        assertEquals(0, eventLoop.getBlockingEventCount());
+        assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
+        assertEquals("[]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        v8Runtime.getExecutor("t = undefined;").executeVoid();
+    }
+
+    @Test
     public void testInvalidArgumentCount() throws JavetException {
         try {
             v8Runtime.getExecutor("setImmediate();").executeVoid();
@@ -38,7 +49,6 @@ public class TestTimersImmediate extends BaseTestTimers {
     @Test
     public void testInvalidCallback() throws JavetException {
         try {
-
             v8Runtime.getExecutor("setImmediate(1);").executeVoid();
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {

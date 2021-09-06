@@ -24,6 +24,7 @@ import com.caoccao.javet.javenode.modules.BaseJNModule;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValueFunction;
+import com.caoccao.javet.values.reference.V8ValueObject;
 
 import java.util.Arrays;
 
@@ -31,6 +32,20 @@ public class TimersModule extends BaseJNModule {
 
     public TimersModule(JNEventLoop eventLoop) {
         super(eventLoop);
+    }
+
+    @V8Function
+    public V8Value clearImmediate(V8Value... v8ValueArgs) throws JavetException {
+        if (v8ValueArgs == null || v8ValueArgs.length != 1) {
+            throw new IllegalArgumentException("clearImmediate() takes 1 argument");
+        }
+        V8Value v8Value = v8ValueArgs[0];
+        if (!(v8Value instanceof V8ValueObject)) {
+            throw new IllegalArgumentException("Argument [immediate] is invalid");
+        }
+        // TODO replace with private property
+        ((V8ValueObject) v8Value).invokeVoid("unref");
+        return eventLoop.getV8Runtime().createV8ValueUndefined();
     }
 
     protected int extractAndValidateDelay(V8Value[] v8ValueArgs) {
