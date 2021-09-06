@@ -28,8 +28,10 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseTimersFunction extends BaseJNFunction {
+    protected AtomicBoolean active;
     protected int delay;
     protected Disposable disposable;
     protected boolean recurrent;
@@ -43,6 +45,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
             int delay,
             V8Value... v8ValueArgs) throws JavetException {
         super(eventLoop);
+        active = new AtomicBoolean(false);
         this.recurrent = recurrent;
         this.v8ValueArgs = JavetResourceUtils.toClone(v8ValueArgs);
         this.delay = delay;
@@ -54,6 +57,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
     public void close() throws JavetException {
         if (!isClosed()) {
             if (hasRef()) {
+                active.set(false);
                 disposable.dispose();
                 if (!recurrent) {
                     eventLoop.decrementBlockingEventCount();
@@ -68,7 +72,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
     }
 
     public boolean hasRef() {
-        return disposable != null && !disposable.isDisposed();
+        return active.get();
     }
 
     @Override
@@ -82,6 +86,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
 
     @Override
     public void run() {
+        active.set(true);
         Scheduler scheduler = Schedulers.from(eventLoop.getExecutorService());
         if (recurrent) {
             disposable = Observable.interval(delay, TimeUnit.MILLISECONDS, scheduler)
@@ -99,6 +104,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
                                 v8ValueFunctionCallback.call(null, v8ValueArgs);
                             }
                         } finally {
+                            active.set(false);
                             eventLoop.decrementBlockingEventCount();
                         }
                     });
@@ -107,6 +113,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
 
     public V8Value unref(V8Value thisObject) {
         if (hasRef()) {
+            active.set(false);
             disposable.dispose();
             if (!recurrent) {
                 eventLoop.decrementBlockingEventCount();

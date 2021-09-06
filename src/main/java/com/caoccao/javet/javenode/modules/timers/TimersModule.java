@@ -19,6 +19,7 @@ package com.caoccao.javet.javenode.modules.timers;
 import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.modules.BaseJNModule;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueInteger;
@@ -54,6 +55,11 @@ public class TimersModule extends BaseJNModule {
         } else {
             return new V8Value[0];
         }
+    }
+
+    @Override
+    public JNModuleType getType() {
+        return JNModuleType.Timers;
     }
 
     @V8Function

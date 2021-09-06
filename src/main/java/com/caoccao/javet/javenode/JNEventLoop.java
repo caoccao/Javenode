@@ -20,13 +20,21 @@ import com.caoccao.javet.exceptions.JavetError;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interfaces.IJavetClosable;
 import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.javenode.enums.JNModuleType;
+import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.utils.SimpleMap;
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class JNEventLoop implements IJavetClosable {
 
@@ -40,6 +48,8 @@ public class JNEventLoop implements IJavetClosable {
     protected AtomicInteger blockingEventCount;
     protected volatile boolean closed;
     protected ExecutorService executorService;
+    protected Map<String, IJNModule> moduleMap;
+    protected ReadWriteLock readWriteLock;
     protected V8Runtime v8Runtime;
 
     public JNEventLoop(V8Runtime v8Runtime) {
@@ -52,6 +62,8 @@ public class JNEventLoop implements IJavetClosable {
         blockingEventCount = new AtomicInteger();
         closed = false;
         this.executorService = Objects.requireNonNull(executorService);
+        moduleMap = new HashMap<>();
+        readWriteLock = new ReentrantReadWriteLock();
         this.v8Runtime = Objects.requireNonNull(v8Runtime);
     }
 
@@ -60,6 +72,9 @@ public class JNEventLoop implements IJavetClosable {
     }
 
     public boolean await(long timeout, TimeUnit timeUnit) throws InterruptedException {
+        if (isClosed()) {
+            return false;
+        }
         assert timeout > 0;
         Objects.requireNonNull(timeUnit);
         long totalMillis = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
@@ -74,6 +89,9 @@ public class JNEventLoop implements IJavetClosable {
     }
 
     protected boolean awaitTermination() throws InterruptedException {
+        if (isClosed()) {
+            return false;
+        }
         return executorService.awaitTermination(awaitTimeout, awaitTimeUnit);
     }
 
@@ -103,6 +121,23 @@ public class JNEventLoop implements IJavetClosable {
                             SimpleMap.of(JavetError.PARAMETER_MESSAGE, "Event loop shutdown was interrupted"));
                 } finally {
                     closed = true;
+                }
+            }
+            if (closed) {
+                Lock writeLock = readWriteLock.writeLock();
+                try {
+                    writeLock.lock();
+                    for (IJNModule iJNModule : moduleMap.values()) {
+                        try {
+                            iJNModule.unbind();
+                            iJNModule.close();
+                            moduleMap.remove(iJNModule.getType().getName());
+                        } catch (Throwable t) {
+                        }
+                    }
+                    moduleMap.clear();
+                } finally {
+                    writeLock.unlock();
                 }
             }
         }
@@ -141,6 +176,39 @@ public class JNEventLoop implements IJavetClosable {
         return closed;
     }
 
+    public IJNModule loadModule(JNModuleType jnModuleType) throws JavetException {
+        if (isClosed()) {
+            return null;
+        }
+        Objects.requireNonNull(jnModuleType);
+        String moduleName = jnModuleType.getName();
+        Lock readLock = readWriteLock.readLock();
+        try {
+            readLock.lock();
+            if (moduleMap.containsKey(moduleName)) {
+                return moduleMap.get(moduleName);
+            }
+        } finally {
+            readLock.unlock();
+        }
+        Lock writeLock = readWriteLock.writeLock();
+        try {
+            writeLock.lock();
+            Class<? extends IJNModule> moduleClass = jnModuleType.getModuleClass();
+            Constructor constructor = moduleClass.getConstructor(getClass());
+            IJNModule iJNModule = (IJNModule) constructor.newInstance(this);
+            iJNModule.bind();
+            moduleMap.put(moduleName, iJNModule);
+            return iJNModule;
+        } catch (JavetException e) {
+            throw e;
+        } catch (Throwable t) {
+        } finally {
+            writeLock.unlock();
+        }
+        return null;
+    }
+
     public void setAwaitTimeUnit(TimeUnit awaitTimeUnit) {
         this.awaitTimeUnit = Objects.requireNonNull(awaitTimeUnit);
     }
@@ -148,5 +216,25 @@ public class JNEventLoop implements IJavetClosable {
     public void setAwaitTimeout(long awaitTimeout) {
         assert awaitTimeout > 0;
         this.awaitTimeout = awaitTimeout;
+    }
+
+    public boolean unloadModule(JNModuleType jnModuleType) throws JavetException {
+        if (isClosed()) {
+            return false;
+        }
+        Objects.requireNonNull(jnModuleType);
+        Lock writeLock = readWriteLock.writeLock();
+        try {
+            writeLock.lock();
+            if (moduleMap.containsKey(jnModuleType.getName())) {
+                IJNModule iJNModule = moduleMap.get(jnModuleType.getName());
+                iJNModule.unbind();
+                moduleMap.remove(jnModuleType.getName());
+                return true;
+            }
+        } finally {
+            writeLock.unlock();
+        }
+        return false;
     }
 }

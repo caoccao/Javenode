@@ -36,7 +36,6 @@ public abstract class BaseJNModule implements IJNModule {
         moduleReferences = new LinkedList<>();
     }
 
-
     @Override
     public void close() throws JavetException {
         if (!isClosed()) {
