@@ -22,31 +22,40 @@ import com.caoccao.javet.javenode.interfaces.IJNFunction;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.utils.JavetResourceUtils;
 
-import java.util.LinkedList;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class BaseJNModule implements IJNModule {
     protected volatile boolean closed;
     protected JNEventLoop eventLoop;
-    protected LinkedList<IJNFunction> moduleReferences;
+    protected ReadWriteLock readWriteLock;
+    private Map<Integer, IJNFunction> functionMap;
 
     public BaseJNModule(JNEventLoop eventLoop) {
         closed = false;
         this.eventLoop = Objects.requireNonNull(eventLoop);
-        moduleReferences = new LinkedList<>();
+        functionMap = new TreeMap<>();
+        readWriteLock = new ReentrantReadWriteLock();
     }
 
     @Override
     public void close() throws JavetException {
         if (!isClosed()) {
-            while (!moduleReferences.isEmpty()) {
-                IJNFunction moduleReference = moduleReferences.poll();
-                if (moduleReference == null) {
-                    break;
+            Lock writeLock = readWriteLock.writeLock();
+            try {
+                writeLock.lock();
+                for (IJNFunction iJNFunction : functionMap.values()) {
+                    JavetResourceUtils.safeClose(iJNFunction);
+                    functionMap.remove(iJNFunction.getReferenceId());
                 }
-                JavetResourceUtils.safeClose(moduleReference);
+            } finally {
+                writeLock.unlock();
+                closed = true;
             }
-            closed = true;
         }
     }
 
@@ -55,8 +64,29 @@ public abstract class BaseJNModule implements IJNModule {
         return eventLoop;
     }
 
+    protected IJNFunction getFunction(int referenceId) {
+        Lock readLock = readWriteLock.readLock();
+        try {
+            readLock.lock();
+            return functionMap.get(referenceId);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     @Override
     public boolean isClosed() {
         return closed;
+    }
+
+    protected IJNFunction putFunction(IJNFunction iJNFunction) {
+        Objects.requireNonNull(iJNFunction);
+        Lock writeLock = readWriteLock.writeLock();
+        try {
+            writeLock.lock();
+            return functionMap.put(iJNFunction.getReferenceId(), iJNFunction);
+        } finally {
+            writeLock.unlock();
+        }
     }
 }

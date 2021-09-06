@@ -28,6 +28,8 @@ import com.caoccao.javet.values.reference.V8ValueObject;
 public interface IJNFunction extends IJavetClosable, Runnable {
     JNEventLoop getEventLoop();
 
+    int getReferenceId();
+
     default V8Value toV8Value() throws JavetException {
         V8Runtime v8Runtime = getEventLoop().getV8Runtime();
         if (JavetResourceUtils.isClosed(v8Runtime)) {

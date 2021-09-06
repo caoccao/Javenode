@@ -71,7 +71,7 @@ public class TimersModule extends BaseJNModule {
         validateCallback(v8ValueCallback);
         TimersImmediate timersImmediate = new TimersImmediate(
                 eventLoop, (V8ValueFunction) v8ValueCallback, extractArgs(v8ValueArgs, 1));
-        moduleReferences.add(timersImmediate);
+        putFunction(timersImmediate);
         timersImmediate.run();
         return timersImmediate.toV8Value();
     }
@@ -86,7 +86,7 @@ public class TimersModule extends BaseJNModule {
         int delay = extractAndValidateDelay(v8ValueArgs);
         TimersTimeout timersTimeout = new TimersTimeout(
                 eventLoop, true, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
-        moduleReferences.add(timersTimeout);
+        putFunction(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();
     }
@@ -101,7 +101,7 @@ public class TimersModule extends BaseJNModule {
         int delay = extractAndValidateDelay(v8ValueArgs);
         TimersTimeout timersTimeout = new TimersTimeout(
                 eventLoop, false, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
-        moduleReferences.add(timersTimeout);
+        putFunction(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();
     }

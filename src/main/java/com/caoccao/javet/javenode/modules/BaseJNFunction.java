@@ -19,15 +19,29 @@ package com.caoccao.javet.javenode.modules;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.interfaces.IJNFunction;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public abstract class BaseJNFunction implements IJNFunction {
+    protected final static AtomicInteger GLOBAL_REFERENCE_ID = new AtomicInteger(0);
     protected JNEventLoop eventLoop;
+    protected int referenceId;
 
     public BaseJNFunction(JNEventLoop eventLoop) {
         this.eventLoop = eventLoop;
+        referenceId = GLOBAL_REFERENCE_ID.incrementAndGet();
+    }
+
+    public static int getGlobalReferenceId() {
+        return GLOBAL_REFERENCE_ID.get();
     }
 
     @Override
     public JNEventLoop getEventLoop() {
         return eventLoop;
+    }
+
+    @Override
+    public int getReferenceId() {
+        return referenceId;
     }
 }

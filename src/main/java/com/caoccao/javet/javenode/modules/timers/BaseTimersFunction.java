@@ -89,7 +89,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
         active.set(true);
         Scheduler scheduler = Schedulers.from(eventLoop.getExecutorService());
         if (recurrent) {
-            disposable = Observable.interval(delay, TimeUnit.MILLISECONDS, scheduler)
+            disposable = Observable.interval(delay, delay, TimeUnit.MILLISECONDS, scheduler)
                     .subscribe(t -> {
                         if (!isClosed()) {
                             v8ValueFunctionCallback.call(null, v8ValueArgs);

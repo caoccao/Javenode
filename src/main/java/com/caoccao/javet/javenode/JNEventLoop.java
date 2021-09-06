@@ -22,6 +22,7 @@ import com.caoccao.javet.interfaces.IJavetClosable;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
+import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.utils.SimpleMap;
 
 import java.lang.reflect.Constructor;
@@ -130,10 +131,10 @@ public class JNEventLoop implements IJavetClosable {
                     for (IJNModule iJNModule : moduleMap.values()) {
                         try {
                             iJNModule.unbind();
-                            iJNModule.close();
-                            moduleMap.remove(iJNModule.getType().getName());
                         } catch (Throwable t) {
                         }
+                        JavetResourceUtils.safeClose(iJNModule);
+                        moduleMap.remove(iJNModule.getType().getName());
                     }
                     moduleMap.clear();
                 } finally {

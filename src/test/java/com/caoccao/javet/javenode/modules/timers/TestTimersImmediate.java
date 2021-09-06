@@ -18,23 +18,13 @@ package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.exceptions.JavetExecutionException;
-import com.caoccao.javet.javenode.BaseTestJavenodeSuite;
-import com.caoccao.javet.javenode.enums.JNModuleType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestTimersImmediate extends BaseTestJavenodeSuite {
-    @BeforeEach
-    @Override
-    public void beforeEach() throws JavetException {
-        super.beforeEach();
-        eventLoop.loadModule(JNModuleType.Timers);
-    }
-
+public class TestTimersImmediate extends BaseTestTimers {
     @Test
     public void testInvalidArgumentCount() throws JavetException {
         try {
