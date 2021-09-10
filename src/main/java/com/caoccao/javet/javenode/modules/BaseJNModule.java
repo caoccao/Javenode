@@ -21,7 +21,9 @@ import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.interfaces.IJNFunction;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.utils.JavetResourceUtils;
+import com.caoccao.javet.values.V8Value;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -56,6 +58,15 @@ public abstract class BaseJNModule implements IJNModule {
                 writeLock.unlock();
                 closed = true;
             }
+        }
+    }
+
+    protected V8Value[] extractArgs(V8Value[] v8ValueArgs, int startIndex) {
+        assert startIndex >= 0;
+        if (v8ValueArgs.length > startIndex) {
+            return Arrays.copyOfRange(v8ValueArgs, startIndex, v8ValueArgs.length);
+        } else {
+            return new V8Value[0];
         }
     }
 

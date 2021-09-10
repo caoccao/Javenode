@@ -26,8 +26,6 @@ import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
-import java.util.Arrays;
-
 public class TimersModule extends BaseJNModule {
 
     public TimersModule(JNEventLoop eventLoop) {
@@ -61,15 +59,6 @@ public class TimersModule extends BaseJNModule {
             throw new IllegalArgumentException("Argument [delay] must be a positive integer");
         }
         return delay;
-    }
-
-    protected V8Value[] extractArgs(V8Value[] v8ValueArgs, int startIndex) {
-        assert startIndex >= 0;
-        if (v8ValueArgs.length > startIndex) {
-            return Arrays.copyOfRange(v8ValueArgs, startIndex, v8ValueArgs.length);
-        } else {
-            return new V8Value[0];
-        }
     }
 
     @Override
