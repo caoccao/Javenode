@@ -18,6 +18,7 @@ package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.annotations.V8Property;
+import com.caoccao.javet.enums.V8ValueSymbolType;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.values.V8Value;
@@ -35,7 +36,7 @@ public class TimersTimeout extends BaseTimersFunction {
     }
 
     // TODO to convert it to built-in symbol
-    @V8Property(name = "toPrimitive", symbol = true)
+    @V8Property(name = "toPrimitive", symbolType = V8ValueSymbolType.BuiltIn)
     public V8ValueFunction getReferenceIdFunction() throws JavetException {
         StringBuilder stringBuilder = new StringBuilder("() => ").append(getReferenceId());
         return eventLoop.getV8Runtime().createV8ValueFunction(stringBuilder.toString());

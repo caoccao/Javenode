@@ -89,7 +89,7 @@ public class TestTimersInterval extends BaseTestTimers {
     public void testToPrimitive() throws JavetException, InterruptedException {
         int referenceId = v8Runtime.getExecutor("var t = setInterval(() => {\n" +
                 "}, 1000);\n" +
-                "const referenceId = t[Symbol.for('toPrimitive')]();\n" +
+                "const referenceId = t[Symbol.toPrimitive]();\n" +
                 "t.unref();\n" +
                 "referenceId;").executeInteger();
         assertTrue(referenceId > 0);
