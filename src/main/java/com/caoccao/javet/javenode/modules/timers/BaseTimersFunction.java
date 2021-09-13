@@ -53,17 +53,21 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
         disposable = null;
     }
 
+    protected void cancel() {
+        if (hasRef()) {
+            active.set(false);
+            disposable.dispose();
+            if (!recurrent) {
+                eventLoop.decrementBlockingEventCount();
+            }
+            disposable = null;
+        }
+    }
+
     @Override
     public void close() throws JavetException {
         if (!isClosed()) {
-            if (hasRef()) {
-                active.set(false);
-                disposable.dispose();
-                if (!recurrent) {
-                    eventLoop.decrementBlockingEventCount();
-                }
-                disposable = null;
-            }
+            cancel();
             JavetResourceUtils.safeClose(v8ValueFunctionCallback);
             v8ValueFunctionCallback = null;
             JavetResourceUtils.safeClose((Object[]) v8ValueArgs);
@@ -112,14 +116,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
     }
 
     public V8Value unref(V8Value thisObject) {
-        if (hasRef()) {
-            active.set(false);
-            disposable.dispose();
-            if (!recurrent) {
-                eventLoop.decrementBlockingEventCount();
-            }
-            disposable = null;
-        }
+        cancel();
         return thisObject;
     }
 }

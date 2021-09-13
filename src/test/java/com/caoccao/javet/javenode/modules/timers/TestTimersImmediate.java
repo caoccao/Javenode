@@ -29,7 +29,7 @@ public class TestTimersImmediate extends BaseTestTimers {
     public void testClearImmediate() throws JavetException {
         v8Runtime.getExecutor("const a = [];\n" +
                 "var t = setImmediate(() => { a.push(true); });\n" +
-                "clearImmediate(t); t;").execute();
+                "clearImmediate(t);").executeVoid();
         assertEquals(0, eventLoop.getBlockingEventCount());
         assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
         assertEquals("[]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());

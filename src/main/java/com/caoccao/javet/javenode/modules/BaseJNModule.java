@@ -18,10 +18,12 @@ package com.caoccao.javet.javenode.modules;
 
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.enums.JNPrivatePropertyEnum;
 import com.caoccao.javet.javenode.interfaces.IJNFunction;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
+import com.caoccao.javet.values.reference.V8ValueObject;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -75,14 +77,23 @@ public abstract class BaseJNModule implements IJNModule {
         return eventLoop;
     }
 
-    protected IJNFunction getFunction(int referenceId) {
-        Lock readLock = readWriteLock.readLock();
-        try {
-            readLock.lock();
-            return functionMap.get(referenceId);
-        } finally {
-            readLock.unlock();
+    protected <F extends IJNFunction> F getFunction(V8ValueObject v8ValueObject) throws JavetException {
+        return getFunction(Objects.requireNonNull(v8ValueObject)
+                .getPrivatePropertyInteger(JNPrivatePropertyEnum.REFERENCE_ID));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <F extends IJNFunction> F getFunction(Integer referenceId) {
+        if (referenceId != null) {
+            Lock readLock = readWriteLock.readLock();
+            try {
+                readLock.lock();
+                return (F) functionMap.get(referenceId);
+            } finally {
+                readLock.unlock();
+            }
         }
+        return null;
     }
 
     @Override

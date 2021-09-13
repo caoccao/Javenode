@@ -35,7 +35,6 @@ public class TimersTimeout extends BaseTimersFunction {
         super(eventLoop, recurrent, v8ValueFunctionCallback, delay, v8ValueArgs);
     }
 
-    // TODO to convert it to built-in symbol
     @V8Property(name = "toPrimitive", symbolType = V8ValueSymbolType.BuiltIn)
     public V8ValueFunction getReferenceIdFunction() throws JavetException {
         StringBuilder stringBuilder = new StringBuilder("() => ").append(getReferenceId());

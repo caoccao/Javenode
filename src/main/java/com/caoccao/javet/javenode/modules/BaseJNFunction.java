@@ -16,8 +16,15 @@
 
 package com.caoccao.javet.javenode.modules;
 
+import com.caoccao.javet.exceptions.JavetError;
+import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.enums.JNPrivatePropertyEnum;
 import com.caoccao.javet.javenode.interfaces.IJNFunction;
+import com.caoccao.javet.utils.JavetResourceUtils;
+import com.caoccao.javet.values.V8Value;
+import com.caoccao.javet.values.reference.V8ValueObject;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,5 +50,17 @@ public abstract class BaseJNFunction implements IJNFunction {
     @Override
     public int getReferenceId() {
         return referenceId;
+    }
+
+    @Override
+    public V8Value toV8Value() throws JavetException {
+        V8Runtime v8Runtime = getEventLoop().getV8Runtime();
+        if (JavetResourceUtils.isClosed(v8Runtime)) {
+            throw new JavetException(JavetError.RuntimeAlreadyClosed);
+        }
+        V8ValueObject v8ValueObject = v8Runtime.createV8ValueObject();
+        v8ValueObject.bind(this);
+        v8ValueObject.setPrivateProperty(JNPrivatePropertyEnum.REFERENCE_ID, getReferenceId());
+        return v8ValueObject;
     }
 }

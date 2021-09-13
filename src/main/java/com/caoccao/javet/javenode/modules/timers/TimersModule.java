@@ -26,10 +26,24 @@ import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
+import java.text.MessageFormat;
+
 public class TimersModule extends BaseJNModule {
 
     public TimersModule(JNEventLoop eventLoop) {
         super(eventLoop);
+    }
+
+    protected V8Value cancel(V8Value v8Value, String variableName) throws JavetException {
+        if (!(v8Value instanceof V8ValueObject)) {
+            throw new IllegalArgumentException(MessageFormat.format("Argument [{0}] is invalid", variableName));
+        }
+        BaseTimersFunction baseTimersFunction = getFunction((V8ValueObject) v8Value);
+        if (baseTimersFunction == null) {
+            throw new IllegalArgumentException(MessageFormat.format("Argument [{0}] is invalid", variableName));
+        }
+        baseTimersFunction.cancel();
+        return eventLoop.getV8Runtime().createV8ValueUndefined();
     }
 
     @V8Function
@@ -37,13 +51,23 @@ public class TimersModule extends BaseJNModule {
         if (v8ValueArgs == null || v8ValueArgs.length != 1) {
             throw new IllegalArgumentException("clearImmediate() takes 1 argument");
         }
-        V8Value v8Value = v8ValueArgs[0];
-        if (!(v8Value instanceof V8ValueObject)) {
-            throw new IllegalArgumentException("Argument [immediate] is invalid");
+        return cancel(v8ValueArgs[0], "immediate");
+    }
+
+    @V8Function
+    public V8Value clearInterval(V8Value... v8ValueArgs) throws JavetException {
+        if (v8ValueArgs == null || v8ValueArgs.length != 1) {
+            throw new IllegalArgumentException("clearInterval() takes 1 argument");
         }
-        // TODO replace with private property
-        ((V8ValueObject) v8Value).invokeVoid("unref");
-        return eventLoop.getV8Runtime().createV8ValueUndefined();
+        return cancel(v8ValueArgs[0], "interval");
+    }
+
+    @V8Function
+    public V8Value clearTimeout(V8Value... v8ValueArgs) throws JavetException {
+        if (v8ValueArgs == null || v8ValueArgs.length != 1) {
+            throw new IllegalArgumentException("clearTimeout() takes 1 argument");
+        }
+        return cancel(v8ValueArgs[0], "timeout");
     }
 
     protected int extractAndValidateDelay(V8Value[] v8ValueArgs) {

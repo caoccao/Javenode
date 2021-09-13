@@ -24,6 +24,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestTimersTimeout extends BaseTestTimers {
     @Test
+    public void testClearTimeout() throws JavetException {
+        v8Runtime.getExecutor("const a = [];\n" +
+                "var t = setTimeout(() => { a.push(true); }, 1000);\n" +
+                "clearTimeout(t);").executeVoid();
+        assertEquals(0, eventLoop.getBlockingEventCount());
+        assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
+        assertEquals("[]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        v8Runtime.getExecutor("t = undefined;").executeVoid();
+    }
+
+    @Test
     public void testInvalidArgumentCount() throws JavetException {
         try {
             v8Runtime.getExecutor("setTimeout();").executeVoid();

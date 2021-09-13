@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package com.caoccao.javet.javenode.interfaces;
+package com.caoccao.javet.javenode.enums;
 
-import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.interfaces.IJavetClosable;
-import com.caoccao.javet.javenode.JNEventLoop;
-import com.caoccao.javet.values.V8Value;
-
-public interface IJNFunction extends IJavetClosable, Runnable {
-    JNEventLoop getEventLoop();
-
-    int getReferenceId();
-
-    V8Value toV8Value() throws JavetException;
+public final class JNPrivatePropertyEnum {
+    public static final String REFERENCE_ID = "Javenode#referenceId";
 }
