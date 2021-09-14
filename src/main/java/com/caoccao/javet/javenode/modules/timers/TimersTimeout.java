@@ -30,7 +30,7 @@ public class TimersTimeout extends BaseTimersFunction {
             JNEventLoop eventLoop,
             boolean recurrent,
             V8ValueFunction v8ValueFunctionCallback,
-            int delay,
+            long delay,
             V8Value... v8ValueArgs) throws JavetException {
         super(eventLoop, recurrent, v8ValueFunctionCallback, delay, v8ValueArgs);
     }

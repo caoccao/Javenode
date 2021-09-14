@@ -55,12 +55,12 @@ public class TestTimersTimeout extends BaseTestTimers {
     }
 
     @Test
-    public void testInvalidDelayNegativeInteger() throws JavetException {
+    public void testInvalidDelayNegativeNumber() throws JavetException {
         try {
             v8Runtime.getExecutor("setTimeout(() => {}, -1);").executeVoid();
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {
-            assertEquals("Error: Argument [delay] must be a positive integer", e.getMessage());
+            assertEquals("Error: Argument [delay] must be a positive number", e.getMessage());
         }
     }
 
@@ -71,7 +71,7 @@ public class TestTimersTimeout extends BaseTestTimers {
             v8Runtime.getExecutor("setTimeout(() => {}, 'a');").executeVoid();
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {
-            assertEquals("Error: Argument [delay] must be an integer", e.getMessage());
+            assertEquals("Error: Argument [delay] must be a number", e.getMessage());
         }
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.unbind();

@@ -62,7 +62,7 @@ public class TestTimersInterval extends BaseTestTimers {
             v8Runtime.getExecutor("setInterval(() => {}, -1);").executeVoid();
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {
-            assertEquals("Error: Argument [delay] must be a positive integer", e.getMessage());
+            assertEquals("Error: Argument [delay] must be a positive number", e.getMessage());
         }
     }
 
@@ -73,7 +73,7 @@ public class TestTimersInterval extends BaseTestTimers {
             v8Runtime.getExecutor("setInterval(() => {}, 'a');").executeVoid();
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {
-            assertEquals("Error: Argument [delay] must be an integer", e.getMessage());
+            assertEquals("Error: Argument [delay] must be a number", e.getMessage());
         }
         try (TimersModule timersModule = new TimersModule(eventLoop)) {
             timersModule.unbind();

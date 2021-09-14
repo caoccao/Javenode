@@ -29,6 +29,7 @@ import com.caoccao.javet.values.reference.V8ValueObject;
 import java.text.MessageFormat;
 
 public class TimersModule extends BaseJNModule {
+    public static final long DEFAULT_DELAY = 1;
     public static final String NAME = "timers";
 
     public TimersModule(JNEventLoop eventLoop) {
@@ -71,17 +72,17 @@ public class TimersModule extends BaseJNModule {
         return cancel(v8ValueArgs[0], "timeout");
     }
 
-    protected int extractAndValidateDelay(V8Value[] v8ValueArgs) {
-        int delay = 1;
+    protected long extractAndValidateDelay(V8Value[] v8ValueArgs) {
+        long delay = DEFAULT_DELAY;
         if (v8ValueArgs.length > 1) {
             V8Value v8ValueDelay = v8ValueArgs[1];
             if (!(v8ValueDelay instanceof V8ValueInteger)) {
-                throw new IllegalArgumentException("Argument [delay] must be an integer");
+                throw new IllegalArgumentException("Argument [delay] must be a number");
             }
             delay = ((V8ValueInteger) v8ValueDelay).toPrimitive();
         }
         if (delay <= 0) {
-            throw new IllegalArgumentException("Argument [delay] must be a positive integer");
+            throw new IllegalArgumentException("Argument [delay] must be a positive number");
         }
         return delay;
     }
@@ -112,7 +113,7 @@ public class TimersModule extends BaseJNModule {
         }
         V8Value v8ValueCallback = v8ValueArgs[0];
         validateCallback(v8ValueCallback);
-        int delay = extractAndValidateDelay(v8ValueArgs);
+        long delay = extractAndValidateDelay(v8ValueArgs);
         TimersTimeout timersTimeout = new TimersTimeout(
                 eventLoop, true, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
         putFunction(timersTimeout);
@@ -127,7 +128,7 @@ public class TimersModule extends BaseJNModule {
         }
         V8Value v8ValueCallback = v8ValueArgs[0];
         validateCallback(v8ValueCallback);
-        int delay = extractAndValidateDelay(v8ValueArgs);
+        long delay = extractAndValidateDelay(v8ValueArgs);
         TimersTimeout timersTimeout = new TimersTimeout(
                 eventLoop, false, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
         putFunction(timersTimeout);
