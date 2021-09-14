@@ -21,11 +21,11 @@ import com.caoccao.javet.javenode.BaseTestJavenodeSuite;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import org.junit.jupiter.api.BeforeEach;
 
-public class BaseTestDynamicTimers extends BaseTestJavenodeSuite {
+public class BaseTestTimersPromises extends BaseTestJavenodeSuite {
     @BeforeEach
     @Override
     public void beforeEach() throws JavetException {
         super.beforeEach();
-        eventLoop.registerDynamicModule(JNModuleType.TIMERS);
+        eventLoop.registerDynamicModule(JNModuleType.TIMERS_PROMISES);
     }
 }

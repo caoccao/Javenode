@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseTimersFunction extends BaseJNFunction {
     protected AtomicBoolean active;
-    protected int delay;
+    protected long delay;
     protected Disposable disposable;
     protected boolean recurrent;
     protected V8Value[] v8ValueArgs;
@@ -42,7 +42,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
             JNEventLoop eventLoop,
             boolean recurrent,
             V8ValueFunction v8ValueFunctionCallback,
-            int delay,
+            long delay,
             V8Value... v8ValueArgs) throws JavetException {
         super(eventLoop);
         active = new AtomicBoolean(false);

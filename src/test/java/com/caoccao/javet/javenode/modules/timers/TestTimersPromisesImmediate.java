@@ -19,22 +19,33 @@ package com.caoccao.javet.javenode.modules.timers;
 import com.caoccao.javet.exceptions.JavetException;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestDynamicTimersImmediate extends BaseTestDynamicTimers {
+public class TestTimersPromisesImmediate extends BaseTestTimersPromises {
     @Test
     public void testWithArgs() throws JavetException, InterruptedException {
-        v8Runtime.getExecutor("import { setImmediate } from 'timers';\n" +
+        v8Runtime.getExecutor("import { setImmediate } from 'timers/promises';\n" +
                 "const a = [];\n" +
-                "var t = setImmediate((b) => {\n" +
-                "  a.push(b);\n" +
-                "}, 2);\n" +
+                "setImmediate(2).then(result => a.push(result));\n" +
                 "a.push(1);\n" +
                 "globalThis.a = a;").setModule(true).executeVoid();
         assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        assertEquals(1, eventLoop.getBlockingEventCount());
+        eventLoop.await();
+        assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        assertEquals(0, eventLoop.getBlockingEventCount());
+    }
+
+    @Test
+    public void testWithoutArgs() throws JavetException, InterruptedException {
+        v8Runtime.getExecutor("import { setImmediate } from 'timers/promises';\n" +
+                "const a = [];\n" +
+                "a.push(1);\n" +
+                "await setImmediate();\n" +
+                "a.push(2)\n" +
+                "globalThis.a = a;").setModule(true).executeVoid();
+        assertTrue(v8Runtime.getExecutor("typeof a === 'undefined'").executeBoolean());
         assertEquals(1, eventLoop.getBlockingEventCount());
         eventLoop.await();
         assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());

@@ -13,5 +13,7 @@ Release Notes
 * Added function ``timers.setImmediate(callback[, ...args])``
 * Added function ``timers.setInterval(callback[, delay[, ...args]])``
 * Added function ``timers.setTimeout(callback[, delay[, ...args]])``
+* Added module ``timers/promises``
+* Added function ``timersPromises.setImmediate([value])``
 
 [`Home <../README.rst>`_]
