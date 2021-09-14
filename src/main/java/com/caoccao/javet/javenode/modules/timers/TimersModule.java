@@ -29,6 +29,7 @@ import com.caoccao.javet.values.reference.V8ValueObject;
 import java.text.MessageFormat;
 
 public class TimersModule extends BaseJNModule {
+    public static final String NAME = "timers";
 
     public TimersModule(JNEventLoop eventLoop) {
         super(eventLoop);
@@ -87,7 +88,7 @@ public class TimersModule extends BaseJNModule {
 
     @Override
     public JNModuleType getType() {
-        return JNModuleType.Timers;
+        return JNModuleType.TIMERS;
     }
 
     @V8Function

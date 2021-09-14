@@ -78,7 +78,7 @@ public class TestTimersImmediate extends BaseTestTimers {
 
     @Test
     public void testWithArgs() throws JavetException, InterruptedException {
-        v8Runtime.getExecutor("const a = [];" +
+        v8Runtime.getExecutor("const a = [];\n" +
                 "var t = setImmediate((b) => {\n" +
                 "  a.push(b);\n" +
                 "}, 2);\n" +

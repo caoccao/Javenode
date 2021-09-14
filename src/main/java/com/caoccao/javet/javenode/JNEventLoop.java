@@ -22,6 +22,7 @@ import com.caoccao.javet.interfaces.IJavetClosable;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
+import com.caoccao.javet.javenode.modules.JNDynamicModuleResolver;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.utils.SimpleMap;
 
@@ -48,9 +49,10 @@ public class JNEventLoop implements IJavetClosable {
     protected long awaitTimeout;
     protected AtomicInteger blockingEventCount;
     protected volatile boolean closed;
+    protected JNDynamicModuleResolver dynamicModuleResolver;
     protected ExecutorService executorService;
-    protected Map<String, IJNModule> moduleMap;
-    protected ReadWriteLock readWriteLock;
+    protected ReadWriteLock readWriteLockForStaticModuleMap;
+    protected Map<String, IJNModule> staticModuleMap;
     protected V8Runtime v8Runtime;
 
     public JNEventLoop(V8Runtime v8Runtime) {
@@ -62,10 +64,12 @@ public class JNEventLoop implements IJavetClosable {
         awaitTimeUnit = DEFAULT_AWAIT_TIME_UNIT;
         blockingEventCount = new AtomicInteger();
         closed = false;
+        dynamicModuleResolver = new JNDynamicModuleResolver(this);
         this.executorService = Objects.requireNonNull(executorService);
-        moduleMap = new HashMap<>();
-        readWriteLock = new ReentrantReadWriteLock();
+        readWriteLockForStaticModuleMap = new ReentrantReadWriteLock();
+        staticModuleMap = new HashMap<>();
         this.v8Runtime = Objects.requireNonNull(v8Runtime);
+        v8Runtime.setV8ModuleResolver(dynamicModuleResolver);
     }
 
     public boolean await() throws InterruptedException {
@@ -125,18 +129,19 @@ public class JNEventLoop implements IJavetClosable {
                 }
             }
             if (closed) {
-                Lock writeLock = readWriteLock.writeLock();
+                JavetResourceUtils.safeClose(dynamicModuleResolver);
+                Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
                 try {
                     writeLock.lock();
-                    for (IJNModule iJNModule : moduleMap.values()) {
+                    for (IJNModule iJNModule : staticModuleMap.values()) {
                         try {
                             iJNModule.unbind();
                         } catch (Throwable t) {
                         }
                         JavetResourceUtils.safeClose(iJNModule);
-                        moduleMap.remove(iJNModule.getType().getName());
+                        staticModuleMap.remove(iJNModule.getType().getName());
                     }
-                    moduleMap.clear();
+                    staticModuleMap.clear();
                 } finally {
                     writeLock.unlock();
                 }
@@ -177,37 +182,44 @@ public class JNEventLoop implements IJavetClosable {
         return closed;
     }
 
-    public IJNModule loadModule(JNModuleType jnModuleType) throws JavetException {
+    public boolean loadStaticModule(JNModuleType jnModuleType) throws JavetException {
         if (isClosed()) {
-            return null;
+            return false;
         }
         Objects.requireNonNull(jnModuleType);
         String moduleName = jnModuleType.getName();
-        Lock readLock = readWriteLock.readLock();
+        Lock readLock = readWriteLockForStaticModuleMap.readLock();
         try {
             readLock.lock();
-            if (moduleMap.containsKey(moduleName)) {
-                return moduleMap.get(moduleName);
+            if (staticModuleMap.containsKey(moduleName)) {
+                return true;
             }
         } finally {
             readLock.unlock();
         }
-        Lock writeLock = readWriteLock.writeLock();
+        Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
         try {
             writeLock.lock();
             Class<? extends IJNModule> moduleClass = jnModuleType.getModuleClass();
             Constructor constructor = moduleClass.getConstructor(getClass());
             IJNModule iJNModule = (IJNModule) constructor.newInstance(this);
             iJNModule.bind();
-            moduleMap.put(moduleName, iJNModule);
-            return iJNModule;
+            staticModuleMap.put(moduleName, iJNModule);
+            return true;
         } catch (JavetException e) {
             throw e;
         } catch (Throwable t) {
         } finally {
             writeLock.unlock();
         }
-        return null;
+        return false;
+    }
+
+    public boolean registerDynamicModule(JNModuleType jnModuleType) {
+        if (isClosed()) {
+            return false;
+        }
+        return dynamicModuleResolver.registerModule(jnModuleType);
     }
 
     public void setAwaitTimeUnit(TimeUnit awaitTimeUnit) {
@@ -219,18 +231,18 @@ public class JNEventLoop implements IJavetClosable {
         this.awaitTimeout = awaitTimeout;
     }
 
-    public boolean unloadModule(JNModuleType jnModuleType) throws JavetException {
+    public boolean unloadStaticModule(JNModuleType jnModuleType) throws JavetException {
         if (isClosed()) {
             return false;
         }
         Objects.requireNonNull(jnModuleType);
-        Lock writeLock = readWriteLock.writeLock();
+        Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
         try {
             writeLock.lock();
-            if (moduleMap.containsKey(jnModuleType.getName())) {
-                IJNModule iJNModule = moduleMap.get(jnModuleType.getName());
+            if (staticModuleMap.containsKey(jnModuleType.getName())) {
+                IJNModule iJNModule = staticModuleMap.get(jnModuleType.getName());
                 iJNModule.unbind();
-                moduleMap.remove(jnModuleType.getName());
+                staticModuleMap.remove(jnModuleType.getName());
                 return true;
             }
         } finally {

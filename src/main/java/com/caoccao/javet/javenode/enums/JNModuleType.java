@@ -19,29 +19,15 @@ package com.caoccao.javet.javenode.enums;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.javenode.modules.timers.TimersModule;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
-
-public enum JNModuleType {
-    Timers("timers", TimersModule.class);
-
-    private static final Map<String, JNModuleType> enumMap = new HashMap<>();
-
-    static {
-        Stream.of(values()).forEach(t -> enumMap.put(t.getName(), t));
-    }
+public final class JNModuleType {
+    public static final JNModuleType TIMERS = new JNModuleType(TimersModule.NAME, TimersModule.class);
 
     private Class<? extends IJNModule> moduleClass;
     private String name;
 
-    JNModuleType(String name, Class<? extends IJNModule> moduleClass) {
+    public JNModuleType(String name, Class<? extends IJNModule> moduleClass) {
         this.moduleClass = moduleClass;
         this.name = name;
-    }
-
-    public static JNModuleType parse(String moduleName) {
-        return enumMap.get(moduleName);
     }
 
     public Class<? extends IJNModule> getModuleClass() {
