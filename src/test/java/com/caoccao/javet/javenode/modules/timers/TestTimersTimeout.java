@@ -66,15 +66,11 @@ public class TestTimersTimeout extends BaseTestTimers {
 
     @Test
     public void testInvalidDelayString() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(eventLoop)) {
-            timersModule.bind();
+        try {
             v8Runtime.getExecutor("setTimeout(() => {}, 'a');").executeVoid();
             fail("Failed to throw exception");
         } catch (JavetExecutionException e) {
             assertEquals("Error: Argument [delay] must be a number", e.getMessage());
-        }
-        try (TimersModule timersModule = new TimersModule(eventLoop)) {
-            timersModule.unbind();
         }
     }
 

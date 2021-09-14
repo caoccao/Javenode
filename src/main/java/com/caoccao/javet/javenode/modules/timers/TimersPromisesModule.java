@@ -65,7 +65,16 @@ public class TimersPromisesModule extends BaseJNModule {
         final V8ValuePromise v8ValuePromiseResolver = eventLoop.getV8Runtime().createV8ValuePromise();
         Scheduler scheduler = Schedulers.from(eventLoop.getExecutorService());
         if (recurrent) {
-
+            Observable.interval(delay, delay, TimeUnit.MILLISECONDS, scheduler)
+                    .subscribe(t -> {
+                        if (!isClosed()) {
+                            if (resolve) {
+                                v8ValuePromiseResolver.resolve(v8ValueResult);
+                            } else {
+                                v8ValuePromiseResolver.reject(v8ValueResult);
+                            }
+                        }
+                    });
         } else {
             eventLoop.incrementBlockingEventCount();
             Observable.timer(delay, TimeUnit.MILLISECONDS, scheduler)

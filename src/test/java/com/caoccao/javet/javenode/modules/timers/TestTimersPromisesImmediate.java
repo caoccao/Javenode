@@ -16,11 +16,13 @@
 
 package com.caoccao.javet.javenode.modules.timers;
 
+import com.caoccao.javet.enums.JavetPromiseRejectEvent;
 import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.values.reference.V8ValueError;
+import com.caoccao.javet.values.reference.V8ValuePromise;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestTimersPromisesImmediate extends BaseTestTimersPromises {
     @Test
@@ -50,5 +52,25 @@ public class TestTimersPromisesImmediate extends BaseTestTimersPromises {
         eventLoop.await();
         assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
         assertEquals(0, eventLoop.getBlockingEventCount());
+    }
+
+    @Test
+    public void testWithoutImport() throws JavetException, InterruptedException {
+        v8Runtime.setPromiseRejectCallback((event, promise, value) -> {
+            assertEquals(JavetPromiseRejectEvent.PromiseRejectWithNoHandler, event);
+        });
+        try (V8ValuePromise v8ValuePromise =
+                     v8Runtime.getExecutor(
+                             "const a = [];\n" +
+                                     "setImmediate(1).then(result => a.push(result));\n" +
+                                     "a.push(1);\n" +
+                                     "globalThis.a = a;").setModule(true).execute()) {
+            assertFalse(v8ValuePromise.isFulfilled());
+            assertTrue(v8ValuePromise.isRejected());
+            try (V8ValueError v8ValueError = v8ValuePromise.getResult()) {
+                assertNotNull(v8ValueError);
+                assertEquals("setImmediate is not defined", v8ValueError.getMessage());
+            }
+        }
     }
 }

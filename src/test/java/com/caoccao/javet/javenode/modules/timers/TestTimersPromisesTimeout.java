@@ -41,17 +41,19 @@ public class TestTimersPromisesTimeout extends BaseTestTimersPromises {
     }
 
     @Test
-    public void testInvalidDelayString() throws JavetException {
-        try (TimersModule timersModule = new TimersModule(eventLoop)) {
-            timersModule.bind();
-            v8Runtime.getExecutor("setTimeout(() => {}, 'a');").executeVoid();
-            fail("Failed to throw exception");
-        } catch (JavetExecutionException e) {
-            assertEquals("Error: Argument [delay] must be a number", e.getMessage());
-        }
-        try (TimersModule timersModule = new TimersModule(eventLoop)) {
-            timersModule.unbind();
-        }
+    public void testInvalidDelayString() throws JavetException, InterruptedException {
+        v8Runtime.getExecutor("import { setTimeout } from 'timers/promises';\n" +
+                "const a = [];\n" +
+                "a.push(1);\n" +
+                "setTimeout('a').catch(e => a.push(e));\n" +
+                "globalThis.a = a;").setModule(true).executeVoid();
+        assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        assertEquals(1, eventLoop.getBlockingEventCount());
+        eventLoop.await();
+        assertEquals(
+                "[1,\"Argument [delay] must be a number\"]",
+                v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        assertEquals(0, eventLoop.getBlockingEventCount());
     }
 
     @Test
