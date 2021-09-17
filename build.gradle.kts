@@ -23,7 +23,7 @@ object Config {
         const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
         const val JUNIT_JUPITER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT_JUPITER}"
         const val JUNIT_JUPITER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT_JUPITER}"
-        const val RXJAVA = "io.reactivex.rxjava3:rxjava:${Versions.RXJAVA}"
+        const val VERTX = "io.vertx:vertx-core:${Versions.VERTX}"
     }
 
     object Versions {
@@ -31,6 +31,7 @@ object Config {
         const val JAVET = "0.9.12"
         const val JUNIT_JUPITER = "5.7.0"
         const val RXJAVA = "3.1.0"
+        const val VERTX = "4.1.3"
     }
 }
 
@@ -58,7 +59,7 @@ dependencies {
     } else {
         implementation(Config.Projects.JAVET)
     }
-    implementation(Config.Projects.RXJAVA)
+    implementation(Config.Projects.VERTX)
     testImplementation(Config.Projects.JUNIT_JUPITER_API)
     testRuntimeOnly(Config.Projects.JUNIT_JUPITER_ENGINE)
 }

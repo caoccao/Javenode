@@ -26,10 +26,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestTimersImmediate extends BaseTestTimers {
     @Test
-    public void testClearImmediate() throws JavetException {
+    public void testClearImmediate() throws JavetException, NoSuchFieldException, IllegalAccessException {
+        long originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
+        TimersConstants.DEFAULT_DELAY = 1000;
         v8Runtime.getExecutor("const a = [];\n" +
                 "var t = setImmediate(() => { a.push(true); });\n" +
                 "clearImmediate(t);").executeVoid();
+        TimersConstants.DEFAULT_DELAY = originalDefaultDelay;
         assertEquals(0, eventLoop.getBlockingEventCount());
         assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
         assertEquals("[]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());

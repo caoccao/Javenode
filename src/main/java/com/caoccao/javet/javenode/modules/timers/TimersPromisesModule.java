@@ -21,15 +21,9 @@ import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.modules.BaseJNModule;
-import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValuePromise;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import java.util.concurrent.TimeUnit;
 
 public class TimersPromisesModule extends BaseJNModule {
     public static final String NAME = "timers/promises";
@@ -39,7 +33,7 @@ public class TimersPromisesModule extends BaseJNModule {
     }
 
     protected long extractAndValidateDelay(V8Value[] v8ValueArgs) {
-        long delay = TimersModule.DEFAULT_DELAY;
+        long delay = TimersConstants.DEFAULT_DELAY;
         if (v8ValueArgs != null && v8ValueArgs.length > 0) {
             V8Value v8ValueDelay = v8ValueArgs[0];
             if (!(v8ValueDelay instanceof V8ValueInteger)) {
@@ -58,44 +52,6 @@ public class TimersPromisesModule extends BaseJNModule {
         return JNModuleType.TIMERS_PROMISES;
     }
 
-    protected V8ValuePromise schedule(
-            final long delay, final V8Value v8Value, boolean resolve, boolean recurrent)
-            throws JavetException {
-        final V8Value v8ValueResult = v8Value.toClone();
-        final V8ValuePromise v8ValuePromiseResolver = eventLoop.getV8Runtime().createV8ValuePromise();
-        Scheduler scheduler = Schedulers.from(eventLoop.getExecutorService());
-        if (recurrent) {
-            Observable.interval(delay, delay, TimeUnit.MILLISECONDS, scheduler)
-                    .subscribe(t -> {
-                        if (!isClosed()) {
-                            if (resolve) {
-                                v8ValuePromiseResolver.resolve(v8ValueResult);
-                            } else {
-                                v8ValuePromiseResolver.reject(v8ValueResult);
-                            }
-                        }
-                    });
-        } else {
-            eventLoop.incrementBlockingEventCount();
-            Observable.timer(delay, TimeUnit.MILLISECONDS, scheduler)
-                    .subscribe(t -> {
-                        try {
-                            if (!isClosed()) {
-                                if (resolve) {
-                                    v8ValuePromiseResolver.resolve(v8ValueResult);
-                                } else {
-                                    v8ValuePromiseResolver.reject(v8ValueResult);
-                                }
-                            }
-                        } finally {
-                            JavetResourceUtils.safeClose(v8ValueResult, v8ValuePromiseResolver);
-                            eventLoop.decrementBlockingEventCount();
-                        }
-                    });
-        }
-        return v8ValuePromiseResolver.getPromise();
-    }
-
     @V8Function
     public V8ValuePromise setImmediate(V8Value... v8ValueArgs) throws JavetException {
         V8Value v8ValueResult = null;
@@ -105,12 +61,16 @@ public class TimersPromisesModule extends BaseJNModule {
         if (v8ValueResult == null) {
             v8ValueResult = eventLoop.getV8Runtime().createV8ValueNull();
         }
-        return schedule(TimersModule.DEFAULT_DELAY, v8ValueResult, true, false);
+        TimersPromisesImmediate timersPromisesImmediate = new TimersPromisesImmediate(
+                eventLoop, v8ValueResult, true);
+        timersPromisesImmediate.run();
+        return timersPromisesImmediate.getV8ValuePromiseResolver().getPromise();
     }
 
     @V8Function
-    public V8ValuePromise setTimeout(V8Value... v8ValueArgs) throws JavetException {
+    public V8ValuePromise setInterval(V8Value... v8ValueArgs) throws JavetException {
         V8Value v8ValueResult = null;
+        TimersPromisesTimeout timersPromisesTimeout;
         try {
             long delay = extractAndValidateDelay(v8ValueArgs);
             if (v8ValueArgs != null && v8ValueArgs.length > 1) {
@@ -119,10 +79,37 @@ public class TimersPromisesModule extends BaseJNModule {
             if (v8ValueResult == null) {
                 v8ValueResult = eventLoop.getV8Runtime().createV8ValueNull();
             }
-            return schedule(delay, v8ValueResult, true, false);
+            timersPromisesTimeout = new TimersPromisesTimeout(
+                    eventLoop, true, delay, v8ValueResult, true);
         } catch (Throwable t) {
             v8ValueResult = eventLoop.getV8Runtime().createV8ValueString(t.getMessage());
-            return schedule(TimersModule.DEFAULT_DELAY, v8ValueResult, false, false);
+            timersPromisesTimeout = new TimersPromisesTimeout(
+                    eventLoop, true, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
         }
+        timersPromisesTimeout.run();
+        return timersPromisesTimeout.getV8ValuePromiseResolver().getPromise();
+    }
+
+    @V8Function
+    public V8ValuePromise setTimeout(V8Value... v8ValueArgs) throws JavetException {
+        V8Value v8ValueResult = null;
+        TimersPromisesTimeout timersPromisesTimeout;
+        try {
+            long delay = extractAndValidateDelay(v8ValueArgs);
+            if (v8ValueArgs != null && v8ValueArgs.length > 1) {
+                v8ValueResult = v8ValueArgs[1];
+            }
+            if (v8ValueResult == null) {
+                v8ValueResult = eventLoop.getV8Runtime().createV8ValueNull();
+            }
+            timersPromisesTimeout = new TimersPromisesTimeout(
+                    eventLoop, false, delay, v8ValueResult, true);
+        } catch (Throwable t) {
+            v8ValueResult = eventLoop.getV8Runtime().createV8ValueString(t.getMessage());
+            timersPromisesTimeout = new TimersPromisesTimeout(
+                    eventLoop, false, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
+        }
+        timersPromisesTimeout.run();
+        return timersPromisesTimeout.getV8ValuePromiseResolver().getPromise();
     }
 }

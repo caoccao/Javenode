@@ -29,7 +29,6 @@ import com.caoccao.javet.values.reference.V8ValueObject;
 import java.text.MessageFormat;
 
 public class TimersModule extends BaseJNModule {
-    public static final long DEFAULT_DELAY = 1;
     public static final String NAME = "timers";
 
     public TimersModule(JNEventLoop eventLoop) {
@@ -73,7 +72,7 @@ public class TimersModule extends BaseJNModule {
     }
 
     protected long extractAndValidateDelay(V8Value[] v8ValueArgs) {
-        long delay = DEFAULT_DELAY;
+        long delay = TimersConstants.DEFAULT_DELAY;
         if (v8ValueArgs.length > 1) {
             V8Value v8ValueDelay = v8ValueArgs[1];
             if (!(v8ValueDelay instanceof V8ValueInteger)) {

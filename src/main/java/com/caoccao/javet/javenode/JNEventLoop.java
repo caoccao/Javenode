@@ -25,13 +25,13 @@ import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.javenode.modules.JNDynamicModuleResolver;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.utils.SimpleMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -50,26 +50,26 @@ public class JNEventLoop implements IJavetClosable {
     protected AtomicInteger blockingEventCount;
     protected volatile boolean closed;
     protected JNDynamicModuleResolver dynamicModuleResolver;
-    protected ExecutorService executorService;
     protected ReadWriteLock readWriteLockForStaticModuleMap;
     protected Map<String, IJNModule> staticModuleMap;
     protected V8Runtime v8Runtime;
+    protected Vertx vertx;
 
     public JNEventLoop(V8Runtime v8Runtime) {
-        this(v8Runtime, Executors.newFixedThreadPool(DEFAULT_THREAD_POOL_SIZE));
+        this(v8Runtime, new VertxOptions().setWorkerPoolSize(DEFAULT_THREAD_POOL_SIZE));
     }
 
-    public JNEventLoop(V8Runtime v8Runtime, ExecutorService executorService) {
+    public JNEventLoop(V8Runtime v8Runtime, VertxOptions vertxOptions) {
         awaitTimeout = DEFAULT_AWAIT_TIMEOUT;
         awaitTimeUnit = DEFAULT_AWAIT_TIME_UNIT;
         blockingEventCount = new AtomicInteger();
         closed = false;
         dynamicModuleResolver = new JNDynamicModuleResolver(this);
-        this.executorService = Objects.requireNonNull(executorService);
         readWriteLockForStaticModuleMap = new ReentrantReadWriteLock();
         staticModuleMap = new HashMap<>();
         this.v8Runtime = Objects.requireNonNull(v8Runtime);
         v8Runtime.setV8ModuleResolver(dynamicModuleResolver);
+        vertx = Vertx.vertx(vertxOptions);
     }
 
     public boolean await() throws InterruptedException {
@@ -93,40 +93,23 @@ public class JNEventLoop implements IJavetClosable {
         return true;
     }
 
-    protected boolean awaitTermination() throws InterruptedException {
-        if (isClosed()) {
-            return false;
-        }
-        return executorService.awaitTermination(awaitTimeout, awaitTimeUnit);
-    }
-
     @Override
     public synchronized void close() throws JavetException {
         if (!isClosed()) {
-            if (executorService.isShutdown() || executorService.isTerminated()) {
-                closed = true;
-            } else {
-                try {
-                    await();
-                    executorService.shutdown();
-                    if (!awaitTermination()) {
-                        executorService.shutdownNow();
-                        if (!awaitTermination()) {
-                            throw new JavetException(
-                                    JavetError.RuntimeCloseFailure,
-                                    SimpleMap.of(JavetError.PARAMETER_MESSAGE, "Failed to shutdown the event loop"));
-                        }
-                    }
-                } catch (JavetException e) {
-                    throw e;
-                } catch (InterruptedException e) {
-                    executorService.shutdownNow();
+            try {
+                if (!await()) {
                     throw new JavetException(
                             JavetError.RuntimeCloseFailure,
-                            SimpleMap.of(JavetError.PARAMETER_MESSAGE, "Event loop shutdown was interrupted"));
-                } finally {
-                    closed = true;
+                            SimpleMap.of(JavetError.PARAMETER_MESSAGE, "Failed to shutdown the event loop"));
                 }
+            } catch (JavetException e) {
+                throw e;
+            } catch (InterruptedException e) {
+                throw new JavetException(
+                        JavetError.RuntimeCloseFailure,
+                        SimpleMap.of(JavetError.PARAMETER_MESSAGE, "Event loop shutdown was interrupted"));
+            } finally {
+                closed = true;
             }
             if (closed) {
                 JavetResourceUtils.safeClose(dynamicModuleResolver);
@@ -149,8 +132,9 @@ public class JNEventLoop implements IJavetClosable {
         }
     }
 
-    public void decrementBlockingEventCount() {
+    public JNEventLoop decrementBlockingEventCount() {
         blockingEventCount.decrementAndGet();
+        return this;
     }
 
     public TimeUnit getAwaitTimeUnit() {
@@ -165,16 +149,17 @@ public class JNEventLoop implements IJavetClosable {
         return blockingEventCount.get();
     }
 
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
-
     public V8Runtime getV8Runtime() {
         return v8Runtime;
     }
 
-    public void incrementBlockingEventCount() {
+    public Vertx getVertx() {
+        return vertx;
+    }
+
+    public JNEventLoop incrementBlockingEventCount() {
         blockingEventCount.incrementAndGet();
+        return this;
     }
 
     @Override
@@ -222,13 +207,15 @@ public class JNEventLoop implements IJavetClosable {
         return dynamicModuleResolver.registerModule(jnModuleType);
     }
 
-    public void setAwaitTimeUnit(TimeUnit awaitTimeUnit) {
+    public JNEventLoop setAwaitTimeUnit(TimeUnit awaitTimeUnit) {
         this.awaitTimeUnit = Objects.requireNonNull(awaitTimeUnit);
+        return this;
     }
 
-    public void setAwaitTimeout(long awaitTimeout) {
+    public JNEventLoop setAwaitTimeout(long awaitTimeout) {
         assert awaitTimeout > 0;
         this.awaitTimeout = awaitTimeout;
+        return this;
     }
 
     public boolean unloadStaticModule(JNModuleType jnModuleType) throws JavetException {

@@ -22,19 +22,15 @@ import com.caoccao.javet.javenode.modules.BaseJNFunction;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueFunction;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseTimersFunction extends BaseJNFunction {
     protected AtomicBoolean active;
     protected long delay;
-    protected Disposable disposable;
     protected boolean recurrent;
+    protected long timerId;
     protected V8Value[] v8ValueArgs;
     protected V8ValueFunction v8ValueFunctionCallback;
 
@@ -49,18 +45,18 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
         this.recurrent = recurrent;
         this.v8ValueArgs = JavetResourceUtils.toClone(v8ValueArgs);
         this.delay = delay;
-        this.v8ValueFunctionCallback = v8ValueFunctionCallback.toClone();
-        disposable = null;
+        this.v8ValueFunctionCallback = Objects.requireNonNull(v8ValueFunctionCallback).toClone();
+        timerId = TimersConstants.DEFAULT_TIMER_ID;
     }
 
     protected void cancel() {
         if (hasRef()) {
             active.set(false);
-            disposable.dispose();
+            eventLoop.getVertx().cancelTimer(timerId);
+            timerId = TimersConstants.DEFAULT_TIMER_ID;
             if (!recurrent) {
                 eventLoop.decrementBlockingEventCount();
             }
-            disposable = null;
         }
     }
 
@@ -91,27 +87,30 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
     @Override
     public void run() {
         active.set(true);
-        Scheduler scheduler = Schedulers.from(eventLoop.getExecutorService());
         if (recurrent) {
-            disposable = Observable.interval(delay, delay, TimeUnit.MILLISECONDS, scheduler)
-                    .subscribe(t -> {
-                        if (!isClosed()) {
-                            v8ValueFunctionCallback.call(null, v8ValueArgs);
-                        }
-                    });
+            timerId = eventLoop.getVertx().setPeriodic(delay, id -> {
+                if (!isClosed()) {
+                    try {
+                        v8ValueFunctionCallback.call(null, v8ValueArgs);
+                    } catch (Throwable t) {
+                        t.printStackTrace(System.err);
+                    }
+                }
+            });
         } else {
             eventLoop.incrementBlockingEventCount();
-            disposable = Observable.timer(delay, TimeUnit.MILLISECONDS, scheduler)
-                    .subscribe(t -> {
-                        try {
-                            if (!isClosed()) {
-                                v8ValueFunctionCallback.call(null, v8ValueArgs);
-                            }
-                        } finally {
-                            active.set(false);
-                            eventLoop.decrementBlockingEventCount();
-                        }
-                    });
+            timerId = eventLoop.getVertx().setTimer(delay, id -> {
+                try {
+                    if (!isClosed()) {
+                        v8ValueFunctionCallback.call(null, v8ValueArgs);
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace(System.err);
+                } finally {
+                    active.set(false);
+                    eventLoop.decrementBlockingEventCount();
+                }
+            });
         }
     }
 
