@@ -1,0 +1,33 @@
+name: Linux Build
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - '**.rst'
+      - 'docs/**'
+  push:
+    paths-ignore:
+      - '**.rst'
+      - 'docs/**'
+
+jobs:
+
+  javenode:
+
+    name: Javenode
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout the code
+      uses: actions/checkout@v2
+
+    - name: Build the artifact
+      run: gradle build test
+
+    - name: Upload the artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: javenode
+        path: build/libs/javenode*.jar
