@@ -28,9 +28,8 @@ object Config {
 
     object Versions {
         const val CGLIB = "3.3.0"
-        const val JAVET = "0.9.12"
+        const val JAVET = "0.9.13"
         const val JUNIT_JUPITER = "5.7.0"
-        const val RXJAVA = "3.1.0"
         const val VERTX = "4.1.3"
     }
 }
