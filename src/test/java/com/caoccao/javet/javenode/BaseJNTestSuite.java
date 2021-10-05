@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class BaseTestJavenodeSuite {
+public abstract class BaseJNTestSuite {
     protected JNEventLoop eventLoop;
     protected V8Runtime v8Runtime;
 
@@ -39,7 +39,6 @@ public abstract class BaseTestJavenodeSuite {
     public void beforeEach() throws JavetException {
         v8Runtime = V8Host.getV8Instance().createV8Runtime();
         eventLoop = new JNEventLoop(v8Runtime);
-        eventLoop.setAwaitTimeout(5);
-        eventLoop.setAwaitTimeUnit(TimeUnit.SECONDS);
+        eventLoop.setAwaitTimeout(5).setAwaitTimeUnit(TimeUnit.SECONDS);
     }
 }

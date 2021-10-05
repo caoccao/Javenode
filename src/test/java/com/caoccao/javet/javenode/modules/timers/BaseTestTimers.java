@@ -17,11 +17,11 @@
 package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.javenode.BaseTestJavenodeSuite;
+import com.caoccao.javet.javenode.BaseJNTestSuite;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import org.junit.jupiter.api.BeforeEach;
 
-public class BaseTestTimers extends BaseTestJavenodeSuite {
+public class BaseTestTimers extends BaseJNTestSuite {
     @BeforeEach
     @Override
     public void beforeEach() throws JavetException {
