@@ -93,22 +93,22 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
                     try {
                         v8ValueFunctionCallback.call(null, v8ValueArgs);
                     } catch (Throwable t) {
-                        t.printStackTrace(System.err);
+                        getEventLoop().getLogger().logError(t, "Failed to call a function.");
                     }
                 }
             });
         } else {
             eventLoop.incrementBlockingEventCount();
             timerId = eventLoop.getVertx().setTimer(delay, id -> {
-                try {
-                    if (!isClosed()) {
+                if (!isClosed()) {
+                    try {
                         v8ValueFunctionCallback.call(null, v8ValueArgs);
+                    } catch (Throwable t) {
+                        getEventLoop().getLogger().logError(t, "Failed to call a function.");
+                    } finally {
+                        active.set(false);
+                        eventLoop.decrementBlockingEventCount();
                     }
-                } catch (Throwable t) {
-                    t.printStackTrace(System.err);
-                } finally {
-                    active.set(false);
-                    eventLoop.decrementBlockingEventCount();
                 }
             });
         }

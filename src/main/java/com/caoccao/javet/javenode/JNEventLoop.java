@@ -19,6 +19,7 @@ package com.caoccao.javet.javenode;
 import com.caoccao.javet.exceptions.JavetError;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interfaces.IJavetClosable;
+import com.caoccao.javet.interfaces.IJavetLogger;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
@@ -120,6 +121,8 @@ public class JNEventLoop implements IJavetClosable {
                         try {
                             iJNModule.unbind();
                         } catch (Throwable t) {
+                            getLogger().logError(
+                                    t, "Failed to unbind {0}.", iJNModule.getType().getName());
                         }
                         JavetResourceUtils.safeClose(iJNModule);
                         staticModuleMap.remove(iJNModule.getType().getName());
@@ -147,6 +150,10 @@ public class JNEventLoop implements IJavetClosable {
 
     public int getBlockingEventCount() {
         return blockingEventCount.get();
+    }
+
+    public IJavetLogger getLogger() {
+        return getV8Runtime().getLogger();
     }
 
     public V8Runtime getV8Runtime() {

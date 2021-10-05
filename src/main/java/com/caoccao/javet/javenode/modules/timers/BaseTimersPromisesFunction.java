@@ -91,14 +91,18 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
             if (recurrent) {
                 timerId = eventLoop.getVertx().setPeriodic(delay, id -> {
                     if (!isClosed()) {
-                        try {
-                            if (resolve) {
+                        if (resolve) {
+                            try {
                                 v8ValuePromiseResolver.resolve(v8ValueResult);
-                            } else {
-                                v8ValuePromiseResolver.reject(v8ValueResult);
+                            } catch (Throwable t) {
+                                getEventLoop().getLogger().logError(t, "Failed to resolve the promise.");
                             }
-                        } catch (Throwable t) {
-                            t.printStackTrace(System.err);
+                        } else {
+                            try {
+                                v8ValuePromiseResolver.reject(v8ValueResult);
+                            } catch (Throwable t) {
+                                getEventLoop().getLogger().logError(t, "Failed to reject the promise.");
+                            }
                         }
                     }
                 });
@@ -108,13 +112,19 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
                     try {
                         if (!isClosed()) {
                             if (resolve) {
-                                v8ValuePromiseResolver.resolve(v8ValueResult);
+                                try {
+                                    v8ValuePromiseResolver.resolve(v8ValueResult);
+                                } catch (Throwable t) {
+                                    getEventLoop().getLogger().logError(t, "Failed to resolve the promise.");
+                                }
                             } else {
-                                v8ValuePromiseResolver.reject(v8ValueResult);
+                                try {
+                                    v8ValuePromiseResolver.reject(v8ValueResult);
+                                } catch (Throwable t) {
+                                    getEventLoop().getLogger().logError(t, "Failed to reject the promise.");
+                                }
                             }
                         }
-                    } catch (Throwable t) {
-                        t.printStackTrace(System.err);
                     } finally {
                         JavetResourceUtils.safeClose(v8ValueResult, v8ValuePromiseResolver);
                         eventLoop.decrementBlockingEventCount();
@@ -122,7 +132,7 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
                 });
             }
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            getEventLoop().getLogger().logError(t, "Failed to create the promise.");
         }
     }
 }
