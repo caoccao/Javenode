@@ -82,6 +82,7 @@ public class TimersPromisesModule extends BaseJNModule {
             timersPromisesTimeout = new TimersPromisesTimeout(
                     eventLoop, true, delay, v8ValueResult, true);
         } catch (Throwable t) {
+            getEventLoop().getLogger().logError(t, "Failed to execute setInterval().");
             v8ValueResult = eventLoop.getV8Runtime().createV8ValueString(t.getMessage());
             timersPromisesTimeout = new TimersPromisesTimeout(
                     eventLoop, true, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
@@ -105,6 +106,7 @@ public class TimersPromisesModule extends BaseJNModule {
             timersPromisesTimeout = new TimersPromisesTimeout(
                     eventLoop, false, delay, v8ValueResult, true);
         } catch (Throwable t) {
+            eventLoop.getLogger().logError(t, "Failed to execute setTimeout().");
             v8ValueResult = eventLoop.getV8Runtime().createV8ValueString(t.getMessage());
             timersPromisesTimeout = new TimersPromisesTimeout(
                     eventLoop, false, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);

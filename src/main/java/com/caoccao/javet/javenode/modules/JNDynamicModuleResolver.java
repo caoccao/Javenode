@@ -93,13 +93,13 @@ public final class JNDynamicModuleResolver implements IV8ModuleResolver, IJavetC
         return closed;
     }
 
-    public boolean registerModule(JNModuleType jnModuleType) {
+    public void registerModule(JNModuleType jnModuleType) {
         String moduleName = Objects.requireNonNull(jnModuleType).getName();
         Lock readLock = readWriteLock.readLock();
         try {
             readLock.lock();
             if (dynamicModuleMap.containsKey(moduleName)) {
-                return true;
+                return;
             }
         } finally {
             readLock.unlock();
@@ -110,12 +110,9 @@ public final class JNDynamicModuleResolver implements IV8ModuleResolver, IJavetC
             DynamicModule dynamicModule = new DynamicModule();
             dynamicModule.type = jnModuleType;
             dynamicModuleMap.put(moduleName, dynamicModule);
-            return true;
-        } catch (Throwable t) {
         } finally {
             writeLock.unlock();
         }
-        return false;
     }
 
     @Override
@@ -148,6 +145,7 @@ public final class JNDynamicModuleResolver implements IV8ModuleResolver, IJavetC
             } catch (JavetException e) {
                 throw e;
             } catch (Throwable t) {
+                eventLoop.getLogger().logError(t, "Failed to resolve module {0}.", resourceName);
             } finally {
                 writeLock.unlock();
             }

@@ -201,6 +201,7 @@ public class JNEventLoop implements IJavetClosable {
         } catch (JavetException e) {
             throw e;
         } catch (Throwable t) {
+            getLogger().logError(t, "Failed to load static module {0}.", moduleName);
         } finally {
             writeLock.unlock();
         }
@@ -211,7 +212,8 @@ public class JNEventLoop implements IJavetClosable {
         if (isClosed()) {
             return false;
         }
-        return dynamicModuleResolver.registerModule(jnModuleType);
+        dynamicModuleResolver.registerModule(jnModuleType);
+        return true;
     }
 
     public JNEventLoop setAwaitTimeUnit(TimeUnit awaitTimeUnit) {
