@@ -27,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestTimersPromisesImmediate extends BaseTestTimersPromises {
     @Test
     public void testWithArgs() throws JavetException, InterruptedException {
-        long originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
-        TimersConstants.DEFAULT_DELAY = 100;
         v8Runtime.getExecutor("import { setImmediate } from 'timers/promises';\n" +
                 "const a = [];\n" +
                 "setImmediate(2).then(result => a.push(result));\n" +
@@ -36,7 +34,6 @@ public class TestTimersPromisesImmediate extends BaseTestTimersPromises {
                 "globalThis.a = a;").setModule(true).executeVoid();
         assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
         assertEquals(1, eventLoop.getBlockingEventCount());
-        TimersConstants.DEFAULT_DELAY = originalDefaultDelay;
         eventLoop.await();
         assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
         assertEquals(0, eventLoop.getBlockingEventCount());

@@ -19,9 +19,9 @@ package com.caoccao.javet.javenode.modules;
 import com.caoccao.javet.exceptions.JavetError;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Runtime;
-import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNPrivatePropertyEnum;
 import com.caoccao.javet.javenode.interfaces.IJNFunction;
+import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueObject;
@@ -31,12 +31,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class BaseJNFunction implements IJNFunction {
     protected final static AtomicInteger GLOBAL_REFERENCE_ID = new AtomicInteger(0);
-    private final JNEventLoop eventLoop;
+    private final IJNModule parentModule;
     protected int referenceId;
 
-    public BaseJNFunction(JNEventLoop eventLoop) {
-        this.eventLoop = Objects.requireNonNull(eventLoop);
+    public BaseJNFunction(IJNModule parentModule) {
+        this.parentModule = Objects.requireNonNull(parentModule);
         referenceId = GLOBAL_REFERENCE_ID.incrementAndGet();
+        parentModule.putFunction(this);
     }
 
     public static int getGlobalReferenceId() {
@@ -44,8 +45,8 @@ public abstract class BaseJNFunction implements IJNFunction {
     }
 
     @Override
-    public JNEventLoop getEventLoop() {
-        return eventLoop;
+    public IJNModule getParentModule() {
+        return parentModule;
     }
 
     @Override

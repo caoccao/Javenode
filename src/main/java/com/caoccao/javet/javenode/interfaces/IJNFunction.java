@@ -18,13 +18,27 @@ package com.caoccao.javet.javenode.interfaces;
 
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interfaces.IJavetClosable;
+import com.caoccao.javet.interfaces.IJavetLogger;
+import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.values.V8Value;
 
 public interface IJNFunction extends IJavetClosable, Runnable {
-    JNEventLoop getEventLoop();
+    default JNEventLoop getEventLoop() {
+        return getParentModule().getEventLoop();
+    }
+
+    default IJavetLogger getLogger() {
+        return getEventLoop().getLogger();
+    }
+
+    IJNModule getParentModule();
 
     int getReferenceId();
+
+    default V8Runtime getV8Runtime() {
+        return getEventLoop().getV8Runtime();
+    }
 
     V8Value toV8Value() throws JavetException;
 }

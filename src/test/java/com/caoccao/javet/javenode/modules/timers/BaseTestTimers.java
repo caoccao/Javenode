@@ -22,10 +22,20 @@ import com.caoccao.javet.javenode.enums.JNModuleType;
 import org.junit.jupiter.api.BeforeEach;
 
 public class BaseTestTimers extends BaseJNTestSuite {
+    protected long originalDefaultDelay;
+
+    @Override
+    public void afterEach() throws JavetException {
+        super.afterEach();
+        TimersConstants.DEFAULT_DELAY = originalDefaultDelay;
+    }
+
     @BeforeEach
     @Override
     public void beforeEach() throws JavetException {
         super.beforeEach();
         eventLoop.loadStaticModule(JNModuleType.TIMERS);
+        originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
+        TimersConstants.DEFAULT_DELAY = 100;
     }
 }

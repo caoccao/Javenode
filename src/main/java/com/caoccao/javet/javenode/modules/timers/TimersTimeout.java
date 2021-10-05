@@ -20,19 +20,19 @@ import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.annotations.V8Property;
 import com.caoccao.javet.enums.V8ValueSymbolType;
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 
 public class TimersTimeout extends BaseTimersFunction {
 
     public TimersTimeout(
-            JNEventLoop eventLoop,
+            IJNModule parentModule,
             boolean recurrent,
             V8ValueFunction v8ValueFunctionCallback,
             long delay,
             V8Value... v8ValueArgs) throws JavetException {
-        super(eventLoop, recurrent, v8ValueFunctionCallback, delay, v8ValueArgs);
+        super(parentModule, recurrent, v8ValueFunctionCallback, delay, v8ValueArgs);
     }
 
     @V8Property(name = "toPrimitive", symbolType = V8ValueSymbolType.BuiltIn)

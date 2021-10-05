@@ -34,10 +34,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class BaseJNModule implements IJNModule {
+    protected final ReadWriteLock readWriteLock;
+    private final JNEventLoop eventLoop;
+    private final Map<Integer, IJNFunction> functionMap;
     protected volatile boolean closed;
-    private JNEventLoop eventLoop;
-    protected ReadWriteLock readWriteLock;
-    private Map<Integer, IJNFunction> functionMap;
 
     public BaseJNModule(JNEventLoop eventLoop) {
         closed = false;
@@ -47,7 +47,7 @@ public abstract class BaseJNModule implements IJNModule {
     }
 
     @Override
-    public void close() throws JavetException {
+    public void close() {
         if (!isClosed()) {
             Lock writeLock = readWriteLock.writeLock();
             try {
@@ -77,7 +77,8 @@ public abstract class BaseJNModule implements IJNModule {
         return eventLoop;
     }
 
-    protected <F extends IJNFunction> F getFunction(V8ValueObject v8ValueObject) throws JavetException {
+    @Override
+    public <F extends IJNFunction> F getFunction(V8ValueObject v8ValueObject) throws JavetException {
         return getFunction(Objects.requireNonNull(v8ValueObject)
                 .getPrivatePropertyInteger(JNPrivatePropertyEnum.REFERENCE_ID));
     }
@@ -101,12 +102,14 @@ public abstract class BaseJNModule implements IJNModule {
         return closed;
     }
 
-    protected IJNFunction putFunction(IJNFunction iJNFunction) {
+    @Override
+    public <F extends IJNFunction> F putFunction(F iJNFunction) {
         Objects.requireNonNull(iJNFunction);
         Lock writeLock = readWriteLock.writeLock();
         try {
             writeLock.lock();
-            return functionMap.put(iJNFunction.getReferenceId(), iJNFunction);
+            functionMap.put(iJNFunction.getReferenceId(), iJNFunction);
+            return iJNFunction;
         } finally {
             writeLock.unlock();
         }

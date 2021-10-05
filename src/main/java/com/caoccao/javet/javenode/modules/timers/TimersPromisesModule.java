@@ -58,59 +58,50 @@ public class TimersPromisesModule extends BaseJNModule {
         if (v8ValueArgs != null && v8ValueArgs.length > 0) {
             v8ValueResult = v8ValueArgs[0];
         }
-        if (v8ValueResult == null) {
-            v8ValueResult = getEventLoop().getV8Runtime().createV8ValueNull();
-        }
         TimersPromisesImmediate timersPromisesImmediate = new TimersPromisesImmediate(
-                getEventLoop(), v8ValueResult, true);
+                this, v8ValueResult, true);
         timersPromisesImmediate.run();
         return timersPromisesImmediate.getV8ValuePromiseResolver().getPromise();
     }
 
     @V8Function
-    public V8ValuePromise setInterval(V8Value... v8ValueArgs) throws JavetException {
+    public V8Value setInterval(V8Value... v8ValueArgs) throws JavetException {
         V8Value v8ValueResult = null;
-        TimersPromisesTimeout timersPromisesTimeout;
+        long delay = TimersConstants.DEFAULT_DELAY;
+        boolean resolve = true;
         try {
-            long delay = extractAndValidateDelay(v8ValueArgs);
+            delay = extractAndValidateDelay(v8ValueArgs);
             if (v8ValueArgs != null && v8ValueArgs.length > 1) {
                 v8ValueResult = v8ValueArgs[1];
             }
-            if (v8ValueResult == null) {
-                v8ValueResult = getEventLoop().getV8Runtime().createV8ValueNull();
-            }
-            timersPromisesTimeout = new TimersPromisesTimeout(
-                    getEventLoop(), true, delay, v8ValueResult, true);
         } catch (Throwable t) {
-            getEventLoop().getLogger().logError(t, "Failed to execute setInterval().");
+            getLogger().logError(t, "Failed to execute setInterval().");
             v8ValueResult = getEventLoop().getV8Runtime().createV8ValueString(t.getMessage());
-            timersPromisesTimeout = new TimersPromisesTimeout(
-                    getEventLoop(), true, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
+            resolve = false;
         }
-        timersPromisesTimeout.run();
-        return timersPromisesTimeout.getV8ValuePromiseResolver().getPromise();
+        TimersPromisesInterval timersPromisesInterval = new TimersPromisesInterval(
+                this, delay, v8ValueResult, resolve);
+        timersPromisesInterval.run();
+        return timersPromisesInterval.toV8Value();
     }
 
     @V8Function
     public V8ValuePromise setTimeout(V8Value... v8ValueArgs) throws JavetException {
         V8Value v8ValueResult = null;
-        TimersPromisesTimeout timersPromisesTimeout;
+        long delay = TimersConstants.DEFAULT_DELAY;
+        boolean resolve = true;
         try {
-            long delay = extractAndValidateDelay(v8ValueArgs);
+            delay = extractAndValidateDelay(v8ValueArgs);
             if (v8ValueArgs != null && v8ValueArgs.length > 1) {
                 v8ValueResult = v8ValueArgs[1];
             }
-            if (v8ValueResult == null) {
-                v8ValueResult = getEventLoop().getV8Runtime().createV8ValueNull();
-            }
-            timersPromisesTimeout = new TimersPromisesTimeout(
-                    getEventLoop(), false, delay, v8ValueResult, true);
         } catch (Throwable t) {
-            getEventLoop().getLogger().logError(t, "Failed to execute setTimeout().");
+            getLogger().logError(t, "Failed to execute setTimeout().");
             v8ValueResult = getEventLoop().getV8Runtime().createV8ValueString(t.getMessage());
-            timersPromisesTimeout = new TimersPromisesTimeout(
-                    getEventLoop(), false, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
+            resolve = false;
         }
+        TimersPromisesTimeout timersPromisesTimeout = new TimersPromisesTimeout(
+                this, false, delay, v8ValueResult, resolve);
         timersPromisesTimeout.run();
         return timersPromisesTimeout.getV8ValuePromiseResolver().getPromise();
     }

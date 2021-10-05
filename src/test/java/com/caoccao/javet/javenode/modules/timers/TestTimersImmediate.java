@@ -27,12 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestTimersImmediate extends BaseTestTimers {
     @Test
     public void testClearImmediate() throws JavetException, NoSuchFieldException, IllegalAccessException {
-        long originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
-        TimersConstants.DEFAULT_DELAY = 1000;
         v8Runtime.getExecutor("const a = [];\n" +
                 "var t = setImmediate(() => { a.push(true); });\n" +
                 "clearImmediate(t);").executeVoid();
-        TimersConstants.DEFAULT_DELAY = originalDefaultDelay;
         assertEquals(0, eventLoop.getBlockingEventCount());
         assertFalse(v8Runtime.getExecutor("t.hasRef()").executeBoolean());
         assertEquals("[]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
@@ -61,13 +58,10 @@ public class TestTimersImmediate extends BaseTestTimers {
 
     @Test
     public void testRef() throws JavetException, InterruptedException {
-        long originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
-        TimersConstants.DEFAULT_DELAY = 100;
         v8Runtime.getExecutor("const a = [];\n" +
                 "var t = setImmediate(() => { a.push(true); });").executeVoid();
         assertEquals(1, eventLoop.getBlockingEventCount());
         v8Runtime.getExecutor("a.push(t.hasRef());").executeVoid();
-        TimersConstants.DEFAULT_DELAY = originalDefaultDelay;
         eventLoop.await();
         v8Runtime.getExecutor("a.push(t.ref() == t);").executeVoid();
         assertEquals(0, eventLoop.getBlockingEventCount());

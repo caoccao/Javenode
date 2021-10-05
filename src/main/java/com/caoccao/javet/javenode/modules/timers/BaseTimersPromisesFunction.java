@@ -17,37 +17,36 @@
 package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.javenode.modules.BaseJNFunction;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValuePromise;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
-    protected AtomicBoolean active;
-    protected long delay;
-    protected boolean recurrent;
-    protected boolean resolve;
+    protected final AtomicBoolean active;
+    protected final long delay;
+    protected final boolean recurrent;
+    protected final boolean resolve;
     protected long timerId;
     protected V8Value v8Value;
     protected V8ValuePromise v8ValuePromiseResolver;
 
     public BaseTimersPromisesFunction(
-            JNEventLoop eventLoop,
+            IJNModule parentModule,
             boolean recurrent,
             long delay,
             V8Value v8Value,
             boolean resolve) throws JavetException {
-        super(eventLoop);
+        super(parentModule);
         active = new AtomicBoolean(false);
         this.recurrent = recurrent;
         this.delay = delay;
         this.resolve = resolve;
         timerId = TimersConstants.DEFAULT_TIMER_ID;
-        this.v8Value = Objects.requireNonNull(v8Value).toClone();
+        this.v8Value = v8Value == null ? getV8Runtime().createV8ValueNull() : v8Value.toClone();
         v8ValuePromiseResolver = null;
     }
 
@@ -95,13 +94,13 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
                             try {
                                 v8ValuePromiseResolver.resolve(v8ValueResult);
                             } catch (Throwable t) {
-                                getEventLoop().getLogger().logError(t, "Failed to resolve the promise.");
+                                getLogger().logError(t, "Failed to resolve the promise.");
                             }
                         } else {
                             try {
                                 v8ValuePromiseResolver.reject(v8ValueResult);
                             } catch (Throwable t) {
-                                getEventLoop().getLogger().logError(t, "Failed to reject the promise.");
+                                getLogger().logError(t, "Failed to reject the promise.");
                             }
                         }
                     }
@@ -115,13 +114,13 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
                                 try {
                                     v8ValuePromiseResolver.resolve(v8ValueResult);
                                 } catch (Throwable t) {
-                                    getEventLoop().getLogger().logError(t, "Failed to resolve the promise.");
+                                    getLogger().logError(t, "Failed to resolve the promise.");
                                 }
                             } else {
                                 try {
                                     v8ValuePromiseResolver.reject(v8ValueResult);
                                 } catch (Throwable t) {
-                                    getEventLoop().getLogger().logError(t, "Failed to reject the promise.");
+                                    getLogger().logError(t, "Failed to reject the promise.");
                                 }
                             }
                         }
@@ -132,7 +131,7 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
                 });
             }
         } catch (Throwable t) {
-            getEventLoop().getLogger().logError(t, "Failed to create the promise.");
+            getLogger().logError(t, "Failed to create the promise.");
         }
     }
 }

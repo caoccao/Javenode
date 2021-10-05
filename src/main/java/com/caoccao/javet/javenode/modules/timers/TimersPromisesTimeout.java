@@ -18,15 +18,16 @@ package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.values.V8Value;
 
 public class TimersPromisesTimeout extends BaseTimersPromisesFunction {
     public TimersPromisesTimeout(
-            JNEventLoop eventLoop,
+            IJNModule parentModule,
             boolean recurrent,
             long delay,
             V8Value v8Value,
             boolean resolve) throws JavetException {
-        super(eventLoop, recurrent, delay, v8Value, resolve);
+        super(parentModule, recurrent, delay, v8Value, resolve);
     }
 }

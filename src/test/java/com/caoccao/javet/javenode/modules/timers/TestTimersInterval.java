@@ -131,7 +131,7 @@ public class TestTimersInterval extends BaseTestTimers {
         v8Runtime.getExecutor("const a = [];" +
                 "var t = setInterval(() => {\n" +
                 "  a.push(2);\n" +
-                "}, 10);\n" +
+                "}, 100);\n" +
                 "a.push(1);").executeVoid();
         assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
         assertEquals(0, eventLoop.getBlockingEventCount());

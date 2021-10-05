@@ -18,17 +18,17 @@ package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 
 public class TimersImmediate extends BaseTimersFunction {
 
     public TimersImmediate(
-            JNEventLoop eventLoop,
+            IJNModule parentModule,
             V8ValueFunction v8ValueFunctionCallback,
             V8Value... v8ValueArgs) throws JavetException {
-        super(eventLoop, false, v8ValueFunctionCallback, TimersConstants.DEFAULT_DELAY, v8ValueArgs);
+        super(parentModule, false, v8ValueFunctionCallback, TimersConstants.DEFAULT_DELAY, v8ValueArgs);
     }
 
     @V8Function

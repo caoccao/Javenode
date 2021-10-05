@@ -17,7 +17,7 @@
 package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.javenode.JNEventLoop;
+import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.javenode.modules.BaseJNFunction;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
@@ -35,12 +35,12 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
     protected V8ValueFunction v8ValueFunctionCallback;
 
     public BaseTimersFunction(
-            JNEventLoop eventLoop,
+            IJNModule parentModule,
             boolean recurrent,
             V8ValueFunction v8ValueFunctionCallback,
             long delay,
             V8Value... v8ValueArgs) throws JavetException {
-        super(eventLoop);
+        super(parentModule);
         active = new AtomicBoolean(false);
         this.recurrent = recurrent;
         this.v8ValueArgs = JavetResourceUtils.toClone(v8ValueArgs);
@@ -93,7 +93,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
                     try {
                         v8ValueFunctionCallback.call(null, v8ValueArgs);
                     } catch (Throwable t) {
-                        getEventLoop().getLogger().logError(t, "Failed to call a function.");
+                        getLogger().logError(t, "Failed to call a function.");
                     }
                 }
             });
@@ -104,7 +104,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
                     try {
                         v8ValueFunctionCallback.call(null, v8ValueArgs);
                     } catch (Throwable t) {
-                        getEventLoop().getLogger().logError(t, "Failed to call a function.");
+                        getLogger().logError(t, "Failed to call a function.");
                     } finally {
                         active.set(false);
                         getEventLoop().decrementBlockingEventCount();
