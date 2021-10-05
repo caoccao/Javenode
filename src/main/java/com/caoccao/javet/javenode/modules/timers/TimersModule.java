@@ -44,7 +44,7 @@ public class TimersModule extends BaseJNModule {
             throw new IllegalArgumentException(MessageFormat.format("Argument [{0}] is invalid", variableName));
         }
         baseTimersFunction.cancel();
-        return eventLoop.getV8Runtime().createV8ValueUndefined();
+        return getEventLoop().getV8Runtime().createV8ValueUndefined();
     }
 
     @V8Function
@@ -99,7 +99,7 @@ public class TimersModule extends BaseJNModule {
         V8Value v8ValueCallback = v8ValueArgs[0];
         validateCallback(v8ValueCallback);
         TimersImmediate timersImmediate = new TimersImmediate(
-                eventLoop, (V8ValueFunction) v8ValueCallback, extractArgs(v8ValueArgs, 1));
+                getEventLoop(), (V8ValueFunction) v8ValueCallback, extractArgs(v8ValueArgs, 1));
         putFunction(timersImmediate);
         timersImmediate.run();
         return timersImmediate.toV8Value();
@@ -114,7 +114,7 @@ public class TimersModule extends BaseJNModule {
         validateCallback(v8ValueCallback);
         long delay = extractAndValidateDelay(v8ValueArgs);
         TimersTimeout timersTimeout = new TimersTimeout(
-                eventLoop, true, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
+                getEventLoop(), true, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
         putFunction(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();
@@ -129,7 +129,7 @@ public class TimersModule extends BaseJNModule {
         validateCallback(v8ValueCallback);
         long delay = extractAndValidateDelay(v8ValueArgs);
         TimersTimeout timersTimeout = new TimersTimeout(
-                eventLoop, false, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
+                getEventLoop(), false, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
         putFunction(timersTimeout);
         timersTimeout.run();
         return timersTimeout.toV8Value();

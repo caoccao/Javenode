@@ -26,15 +26,16 @@ import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class BaseJNFunction implements IJNFunction {
     protected final static AtomicInteger GLOBAL_REFERENCE_ID = new AtomicInteger(0);
-    protected JNEventLoop eventLoop;
+    private final JNEventLoop eventLoop;
     protected int referenceId;
 
     public BaseJNFunction(JNEventLoop eventLoop) {
-        this.eventLoop = eventLoop;
+        this.eventLoop = Objects.requireNonNull(eventLoop);
         referenceId = GLOBAL_REFERENCE_ID.incrementAndGet();
     }
 

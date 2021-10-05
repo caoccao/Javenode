@@ -59,10 +59,10 @@ public class TimersPromisesModule extends BaseJNModule {
             v8ValueResult = v8ValueArgs[0];
         }
         if (v8ValueResult == null) {
-            v8ValueResult = eventLoop.getV8Runtime().createV8ValueNull();
+            v8ValueResult = getEventLoop().getV8Runtime().createV8ValueNull();
         }
         TimersPromisesImmediate timersPromisesImmediate = new TimersPromisesImmediate(
-                eventLoop, v8ValueResult, true);
+                getEventLoop(), v8ValueResult, true);
         timersPromisesImmediate.run();
         return timersPromisesImmediate.getV8ValuePromiseResolver().getPromise();
     }
@@ -77,15 +77,15 @@ public class TimersPromisesModule extends BaseJNModule {
                 v8ValueResult = v8ValueArgs[1];
             }
             if (v8ValueResult == null) {
-                v8ValueResult = eventLoop.getV8Runtime().createV8ValueNull();
+                v8ValueResult = getEventLoop().getV8Runtime().createV8ValueNull();
             }
             timersPromisesTimeout = new TimersPromisesTimeout(
-                    eventLoop, true, delay, v8ValueResult, true);
+                    getEventLoop(), true, delay, v8ValueResult, true);
         } catch (Throwable t) {
             getEventLoop().getLogger().logError(t, "Failed to execute setInterval().");
-            v8ValueResult = eventLoop.getV8Runtime().createV8ValueString(t.getMessage());
+            v8ValueResult = getEventLoop().getV8Runtime().createV8ValueString(t.getMessage());
             timersPromisesTimeout = new TimersPromisesTimeout(
-                    eventLoop, true, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
+                    getEventLoop(), true, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
         }
         timersPromisesTimeout.run();
         return timersPromisesTimeout.getV8ValuePromiseResolver().getPromise();
@@ -101,15 +101,15 @@ public class TimersPromisesModule extends BaseJNModule {
                 v8ValueResult = v8ValueArgs[1];
             }
             if (v8ValueResult == null) {
-                v8ValueResult = eventLoop.getV8Runtime().createV8ValueNull();
+                v8ValueResult = getEventLoop().getV8Runtime().createV8ValueNull();
             }
             timersPromisesTimeout = new TimersPromisesTimeout(
-                    eventLoop, false, delay, v8ValueResult, true);
+                    getEventLoop(), false, delay, v8ValueResult, true);
         } catch (Throwable t) {
-            eventLoop.getLogger().logError(t, "Failed to execute setTimeout().");
-            v8ValueResult = eventLoop.getV8Runtime().createV8ValueString(t.getMessage());
+            getEventLoop().getLogger().logError(t, "Failed to execute setTimeout().");
+            v8ValueResult = getEventLoop().getV8Runtime().createV8ValueString(t.getMessage());
             timersPromisesTimeout = new TimersPromisesTimeout(
-                    eventLoop, false, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
+                    getEventLoop(), false, TimersConstants.DEFAULT_DELAY, v8ValueResult, false);
         }
         timersPromisesTimeout.run();
         return timersPromisesTimeout.getV8ValuePromiseResolver().getPromise();

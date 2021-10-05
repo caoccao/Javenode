@@ -35,7 +35,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class BaseJNModule implements IJNModule {
     protected volatile boolean closed;
-    protected JNEventLoop eventLoop;
+    private JNEventLoop eventLoop;
     protected ReadWriteLock readWriteLock;
     private Map<Integer, IJNFunction> functionMap;
 

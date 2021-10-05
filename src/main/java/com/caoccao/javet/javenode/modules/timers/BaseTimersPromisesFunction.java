@@ -54,10 +54,10 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
     protected void cancel() {
         if (!isClosed()) {
             active.set(false);
-            eventLoop.getVertx().cancelTimer(timerId);
+            getEventLoop().getVertx().cancelTimer(timerId);
             timerId = TimersConstants.DEFAULT_TIMER_ID;
             if (!recurrent) {
-                eventLoop.decrementBlockingEventCount();
+                getEventLoop().decrementBlockingEventCount();
             }
         }
     }
@@ -87,9 +87,9 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
         active.set(true);
         try {
             final V8Value v8ValueResult = v8Value;
-            v8ValuePromiseResolver = eventLoop.getV8Runtime().createV8ValuePromise();
+            v8ValuePromiseResolver = getEventLoop().getV8Runtime().createV8ValuePromise();
             if (recurrent) {
-                timerId = eventLoop.getVertx().setPeriodic(delay, id -> {
+                timerId = getEventLoop().getVertx().setPeriodic(delay, id -> {
                     if (!isClosed()) {
                         if (resolve) {
                             try {
@@ -107,8 +107,8 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
                     }
                 });
             } else {
-                eventLoop.incrementBlockingEventCount();
-                timerId = eventLoop.getVertx().setTimer(delay, id -> {
+                getEventLoop().incrementBlockingEventCount();
+                timerId = getEventLoop().getVertx().setTimer(delay, id -> {
                     try {
                         if (!isClosed()) {
                             if (resolve) {
@@ -127,7 +127,7 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
                         }
                     } finally {
                         JavetResourceUtils.safeClose(v8ValueResult, v8ValuePromiseResolver);
-                        eventLoop.decrementBlockingEventCount();
+                        getEventLoop().decrementBlockingEventCount();
                     }
                 });
             }

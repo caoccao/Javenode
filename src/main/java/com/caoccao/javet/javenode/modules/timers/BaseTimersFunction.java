@@ -52,10 +52,10 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
     protected void cancel() {
         if (hasRef()) {
             active.set(false);
-            eventLoop.getVertx().cancelTimer(timerId);
+            getEventLoop().getVertx().cancelTimer(timerId);
             timerId = TimersConstants.DEFAULT_TIMER_ID;
             if (!recurrent) {
-                eventLoop.decrementBlockingEventCount();
+                getEventLoop().decrementBlockingEventCount();
             }
         }
     }
@@ -88,7 +88,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
     public void run() {
         active.set(true);
         if (recurrent) {
-            timerId = eventLoop.getVertx().setPeriodic(delay, id -> {
+            timerId = getEventLoop().getVertx().setPeriodic(delay, id -> {
                 if (!isClosed()) {
                     try {
                         v8ValueFunctionCallback.call(null, v8ValueArgs);
@@ -98,8 +98,8 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
                 }
             });
         } else {
-            eventLoop.incrementBlockingEventCount();
-            timerId = eventLoop.getVertx().setTimer(delay, id -> {
+            getEventLoop().incrementBlockingEventCount();
+            timerId = getEventLoop().getVertx().setTimer(delay, id -> {
                 if (!isClosed()) {
                     try {
                         v8ValueFunctionCallback.call(null, v8ValueArgs);
@@ -107,7 +107,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
                         getEventLoop().getLogger().logError(t, "Failed to call a function.");
                     } finally {
                         active.set(false);
-                        eventLoop.decrementBlockingEventCount();
+                        getEventLoop().decrementBlockingEventCount();
                     }
                 }
             });
