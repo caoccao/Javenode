@@ -62,7 +62,7 @@ public class TestTimersImmediate extends BaseTestTimers {
     @Test
     public void testRef() throws JavetException, InterruptedException {
         long originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
-        TimersConstants.DEFAULT_DELAY = 10;
+        TimersConstants.DEFAULT_DELAY = 100;
         v8Runtime.getExecutor("const a = [];\n" +
                 "var t = setImmediate(() => { a.push(true); });").executeVoid();
         assertEquals(1, eventLoop.getBlockingEventCount());

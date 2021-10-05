@@ -28,7 +28,7 @@ public class TestTimersPromisesImmediate extends BaseTestTimersPromises {
     @Test
     public void testWithArgs() throws JavetException, InterruptedException {
         long originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
-        TimersConstants.DEFAULT_DELAY = 10;
+        TimersConstants.DEFAULT_DELAY = 100;
         v8Runtime.getExecutor("import { setImmediate } from 'timers/promises';\n" +
                 "const a = [];\n" +
                 "setImmediate(2).then(result => a.push(result));\n" +
