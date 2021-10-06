@@ -131,6 +131,7 @@ public class JNEventLoop implements IJavetClosable {
                 } finally {
                     writeLock.unlock();
                 }
+                vertx.close().toCompletionStage();
             }
         }
     }
