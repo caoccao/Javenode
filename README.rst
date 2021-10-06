@@ -117,3 +117,9 @@ License
 =======
 
 `APACHE LICENSE, VERSION 2.0 <LICENSE>`_.
+
+Documents
+=========
+
+* `Javet <https://github.com/caoccao/Javet>`_
+* `Release Notes <docs/release_notes.rst>`_
