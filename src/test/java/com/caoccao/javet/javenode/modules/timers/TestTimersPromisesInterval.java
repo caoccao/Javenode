@@ -20,68 +20,55 @@ import com.caoccao.javet.exceptions.JavetException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestTimersPromisesInterval extends BaseTestTimersPromises {
-//
-//    @Test
-//    public void testInvalidDelayNegativeNumber() throws JavetException, InterruptedException {
-//        v8Runtime.getExecutor("import { setInterval } from 'timers/promises';\n" +
-//                "const a = [];\n" +
-//                "a.push(1);\n" +
-//                "setInterval(-1).next().catch(e => a.push(e));\n" +
-//                "globalThis.a = a;").setModule(true).executeVoid();
-//        assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
-//        assertEquals(1, eventLoop.getBlockingEventCount());
-//        eventLoop.await();
-//        assertEquals(
-//                "[1,\"Argument [delay] must be a positive number\"]",
-//                v8Runtime.getExecutor("JSON.stringify(a);").executeString());
-//        assertEquals(0, eventLoop.getBlockingEventCount());
-//    }
-//
-//    @Test
-//    public void testInvalidDelayString() throws JavetException, InterruptedException {
-//        v8Runtime.getExecutor("import { setInterval } from 'timers/promises';\n" +
-//                "const a = [];\n" +
-//                "a.push(1);\n" +
-//                "setInterval('a').next().catch(e => a.push(e));\n" +
-//                "globalThis.a = a;").setModule(true).executeVoid();
-//        assertEquals("[1]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
-//        assertEquals(1, eventLoop.getBlockingEventCount());
-//        eventLoop.await();
-//        assertEquals(
-//                "[1,\"Argument [delay] must be a number\"]",
-//                v8Runtime.getExecutor("JSON.stringify(a);").executeString());
-//        assertEquals(0, eventLoop.getBlockingEventCount());
-//    }
-//
-//    @Test
-//    public void testWithArgs() throws JavetException, InterruptedException {
-//        v8Runtime.getExecutor("import { setInterval } from 'timers/promises';\n" +
-//                "const a = [];\n" +
-//                "let count = 0;\n" +
-//                "for await (const r of setInterval(2, 2)) {\n" +
-//                "  a.push(r)\n" +
-//                "  if (count > 3) { break; } else { count++; }\n" +
-//                "}\n" +
-//                "globalThis.a = a;").setModule(true).executeVoid();
-//        assertEquals("[2,2,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
-//        assertEquals(0, eventLoop.getBlockingEventCount());
-//    }
-//
-//    @Test
-//    public void testWithoutArgs() throws JavetException, InterruptedException {
-//        v8Runtime.getExecutor("import { setTimeout } from 'timers/promises';\n" +
-//                "const a = [];\n" +
-//                "a.push(1);\n" +
-//                "await setTimeout();\n" +
-//                "a.push(2)\n" +
-//                "globalThis.a = a;").setModule(true).executeVoid();
-//        assertTrue(v8Runtime.getExecutor("typeof a === 'undefined'").executeBoolean());
-//        assertEquals(1, eventLoop.getBlockingEventCount());
-//        eventLoop.await();
-//        assertEquals("[1,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
-//        assertEquals(0, eventLoop.getBlockingEventCount());
-//    }
+
+    @Test
+    public void testInvalidDelayNegativeNumber() throws JavetException, InterruptedException {
+        v8Runtime.getExecutor("import { setInterval } from 'timers/promises';\n" +
+                "const a = [];\n" +
+                "a.push(1);\n" +
+                "try {\n" +
+                "  for await (const r of setInterval(-1)) {\n" +
+                "    a.push(r)\n" +
+                "    if (a.length >= 3) { break; }\n" +
+                "  }\n" +
+                "} catch (error) { a.push(error); }\n" +
+                "globalThis.a = a;").setModule(true).executeVoid();
+        assertEquals(
+                "[1,{\"value\":\"Argument [delay] must be a positive number\",\"done\":false}]",
+                v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        assertEquals(0, eventLoop.getBlockingEventCount());
+    }
+
+    @Test
+    public void testInvalidDelayString() throws JavetException, InterruptedException {
+        v8Runtime.getExecutor("import { setInterval } from 'timers/promises';\n" +
+                "const a = [];\n" +
+                "a.push(1);\n" +
+                "try {\n" +
+                "  for await (const r of setInterval('a')) {\n" +
+                "    a.push(r)\n" +
+                "    if (a.length >= 3) { break; }\n" +
+                "  }\n" +
+                "} catch (error) { a.push(error); }\n" +
+                "globalThis.a = a;").setModule(true).executeVoid();
+        assertEquals(
+                "[1,{\"value\":\"Argument [delay] must be a number\",\"done\":false}]",
+                v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        assertEquals(0, eventLoop.getBlockingEventCount());
+    }
+
+    @Test
+    public void testWithArgs() throws JavetException, InterruptedException {
+        v8Runtime.getExecutor("import { setInterval } from 'timers/promises';\n" +
+                "const a = [];\n" +
+                "for await (const r of setInterval(2, 2)) {\n" +
+                "  a.push(r)\n" +
+                "  if (a.length >= 3) { break; }\n" +
+                "}\n" +
+                "globalThis.a = a;").setModule(true).executeVoid();
+        assertEquals("[2,2,2]", v8Runtime.getExecutor("JSON.stringify(a);").executeString());
+        assertEquals(0, eventLoop.getBlockingEventCount());
+    }
 }
