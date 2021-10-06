@@ -65,8 +65,27 @@ Gradle Groovy DSL
 
     implementation 'com.caoccao.javet:javenode:0.1.0'
 
-Hello Javenode
---------------
+Hello Javenode (Sync)
+---------------------
+
+.. code-block:: java
+
+    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime()) {
+        JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
+        consoleInterceptor.register(v8Runtime.getGlobalObject());
+        try (JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
+            eventLoop.loadStaticModule(JNModuleType.TIMERS);
+            v8Runtime.getExecutor("const a = [];\n" +
+                    "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
+        } finally {
+            v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
+            consoleInterceptor.unregister(v8Runtime.getGlobalObject());
+            v8Runtime.lowMemoryNotification();
+        }
+    }
+
+Hello Javenode (Async)
+----------------------
 
 .. code-block:: java
 
