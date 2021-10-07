@@ -36,5 +36,3 @@ Release Notes
     * ``setImmediate([value])``
     * ``setInterval([delay[, value]])``
     * ``setTimeout([delay[, value]])``
-
-[`Home <../README.rst>`_]
