@@ -66,8 +66,8 @@ Gradle Groovy DSL
 
     implementation 'com.caoccao.javet:javenode:0.1.1'
 
-Hello Javenode (Sync)
----------------------
+Hello Javenode (Static Import)
+------------------------------
 
 .. code-block:: java
 
@@ -80,8 +80,8 @@ Hello Javenode (Sync)
         v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
     }
 
-Hello Javenode (Async)
-----------------------
+Hello Javenode (Dynamic Import)
+-------------------------------
 
 .. code-block:: java
 
