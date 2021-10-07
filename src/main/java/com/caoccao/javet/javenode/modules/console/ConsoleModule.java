@@ -21,11 +21,14 @@ import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.modules.BaseJNModule;
+import com.caoccao.javet.utils.V8ValueUtils;
 import com.caoccao.javet.values.V8Value;
+import com.caoccao.javet.values.primitive.V8ValueBoolean;
 import com.caoccao.javet.values.primitive.V8ValueString;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConsoleModule extends BaseJNModule {
@@ -34,6 +37,9 @@ public class ConsoleModule extends BaseJNModule {
     protected static final String EMPTY = "";
     protected static final String ERROR_FORMAT_IS_NULL = "Format is null.";
     protected static final String ERROR_FORMAT_IS_UNDEFINED = "Format is undefined.";
+    protected static final int MILLIS_PER_HOUR = 1000 * 60 * 60;
+    protected static final int MILLIS_PER_MINUTE = 1000 * 60;
+    protected static final int MILLIS_PER_SECOND = 1000;
     protected static final String UNDEFINED = "undefined";
     protected Map<String, AtomicInteger> countMap;
     protected Map<String, Long> timeMap;
@@ -44,11 +50,52 @@ public class ConsoleModule extends BaseJNModule {
         timeMap = Collections.synchronizedMap(new HashMap<>());
     }
 
+    protected static String getTimeString(long totalMillis) {
+        if (totalMillis >= MILLIS_PER_HOUR) {
+            final long hours = TimeUnit.MILLISECONDS.toHours(totalMillis);
+            final long minutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis) - TimeUnit.HOURS.toMinutes(hours);
+            final long seconds = TimeUnit.MILLISECONDS.toSeconds(totalMillis) - TimeUnit.HOURS.toSeconds(hours)
+                    - TimeUnit.MINUTES.toSeconds(minutes);
+            final long millis = totalMillis - TimeUnit.HOURS.toMillis(hours)
+                    - TimeUnit.MINUTES.toMillis(minutes) - TimeUnit.SECONDS.toMillis(seconds);
+            return String.format("%d:%02d:%02d.%03d (h:mm:ss.mmm)", hours, minutes, seconds, millis);
+        } else if (totalMillis >= MILLIS_PER_MINUTE) {
+            final long minutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis);
+            final long seconds = TimeUnit.MILLISECONDS.toSeconds(totalMillis) - TimeUnit.MINUTES.toSeconds(minutes);
+            final long millis = totalMillis - TimeUnit.MINUTES.toMillis(minutes) - TimeUnit.SECONDS.toMillis(seconds);
+            return String.format("%d:%02d.%03d (m:ss.mmm)", minutes, seconds, millis);
+        } else if (totalMillis >= MILLIS_PER_SECOND) {
+            final long seconds = TimeUnit.MILLISECONDS.toSeconds(totalMillis);
+            final long millis = (totalMillis - TimeUnit.SECONDS.toMillis(seconds));
+            return String.format("%d.%ds", seconds, millis);
+        } else {
+            return String.format("%dms", totalMillis);
+        }
+    }
+
     @Override
     public void bind() throws JavetException {
         try (V8ValueObject v8ValueObject = getV8Runtime().createV8ValueObject()) {
             bind(v8ValueObject);
             getV8Runtime().getGlobalObject().set(NAME, v8ValueObject);
+        }
+    }
+
+    @V8Function(name = "assert")
+    public void consoleAssert(V8Value... v8Values) {
+        final int length = v8Values.length;
+        if (length == 0) {
+            getLogger().error("Assertion failed");
+        } else {
+            V8Value v8Value = v8Values[0];
+            if (v8Value instanceof V8ValueBoolean && !((V8ValueBoolean) v8Value).getValue()) {
+                if (length == 1) {
+                    getLogger().error("Assertion failed");
+                } else {
+                    getLogger().logError("Assertion failed: {0}",
+                            V8ValueUtils.concat(" ", Arrays.copyOfRange(v8Values, 1, length)));
+                }
+            }
         }
     }
 
@@ -179,9 +226,26 @@ public class ConsoleModule extends BaseJNModule {
                     String.format("Warning: No such label ''%s'' for console.timeEnd()", label));
         }
         long elapsedMillis = System.currentTimeMillis() - startTimeMillis;
-        getLogger().logInfo("{0}: {1}s",
-                label,
-                String.format("%.3f", elapsedMillis / 10000D));
+        getLogger().logInfo("{0}: {1}", label, getTimeString(elapsedMillis));
+    }
+
+    @V8Function
+    public void timeLog(V8Value... v8Values) {
+        String label = getLabel(v8Values);
+        Long startTimeMillis = timeMap.get(label);
+        if (startTimeMillis == null) {
+            throw new IllegalArgumentException(
+                    String.format("Warning: No such label ''%s'' for console.timeLog()", label));
+        }
+        long elapsedMillis = System.currentTimeMillis() - startTimeMillis;
+        final int length = v8Values.length;
+        if (length <= 1) {
+            getLogger().logInfo("{0}: {1}", label, getTimeString(elapsedMillis));
+        } else {
+            getLogger().logInfo("{0}: {1} {2}",
+                    label, getTimeString(elapsedMillis),
+                    V8ValueUtils.concat(" ", Arrays.copyOfRange(v8Values, 1, length)));
+        }
     }
 
     @Override

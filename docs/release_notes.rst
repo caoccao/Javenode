@@ -7,6 +7,7 @@ Release Notes
 
 * Added ``JNEventLoopOptions``
 * Added module ``console``
+    * ``assert(value[, ...message])``
     * ``clear()``
     * ``count([label])``
     * ``countReset([label])``
@@ -16,6 +17,7 @@ Release Notes
     * ``log([data][, ...args])``
     * ``time([label])``
     * ``timeEnd([label])``
+    * ``timeLog([label][, ...data])``
     * ``trace([message][, ...args])``
     * ``warn([data][, ...args])``
 

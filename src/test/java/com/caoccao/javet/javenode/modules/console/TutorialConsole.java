@@ -32,7 +32,18 @@ public class TutorialConsole {
             testLogging(v8Runtime);
             testTime(v8Runtime, eventLoop);
             testCount(v8Runtime, eventLoop);
+            testAssert(v8Runtime, eventLoop);
         }
+    }
+
+    private static void testAssert(V8Runtime v8Runtime, JNEventLoop eventLoop) throws JavetException {
+        v8Runtime.getLogger().info("=== assert ===");
+        v8Runtime.getExecutor("console.assert();").executeVoid();
+        v8Runtime.getExecutor("console.assert(true, 'nothing');").executeVoid();
+        v8Runtime.getExecutor("console.assert('nothing');").executeVoid();
+        v8Runtime.getExecutor("console.assert(123, 234);").executeVoid();
+        v8Runtime.getExecutor("console.assert(false);").executeVoid();
+        v8Runtime.getExecutor("console.assert(false, 'abc', 123, true, false, 234.567);").executeVoid();
     }
 
     private static void testCount(V8Runtime v8Runtime, JNEventLoop eventLoop) throws JavetException {
@@ -76,6 +87,9 @@ public class TutorialConsole {
             eventLoop.getLogger().logError(e.getMessage());
         }
         v8Runtime.getExecutor("console.time('123');").executeVoid();
+        v8Runtime.getExecutor("console.timeLog();").executeVoid();
+        v8Runtime.getExecutor("console.timeLog('abc', 123, 'abc');").executeVoid();
+        v8Runtime.getExecutor("console.timeLog('abc', true, false);").executeVoid();
         TimeUnit.MILLISECONDS.sleep(10);
         v8Runtime.getExecutor("console.timeEnd();").executeVoid();
         TimeUnit.MILLISECONDS.sleep(10);
