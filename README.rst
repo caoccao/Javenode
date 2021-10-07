@@ -31,6 +31,7 @@ Major Features
 * Native Event Loop (vert.x)
 * Same Modules as Node.js
 * Modules
+    * console
     * timers
     * timers/promises
 
@@ -70,17 +71,13 @@ Hello Javenode (Sync)
 
 .. code-block:: java
 
-    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime()) {
-        JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
-        consoleInterceptor.register(v8Runtime.getGlobalObject());
-        try (JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-            eventLoop.loadStaticModules(JNModuleType.TIMERS);
-            v8Runtime.getExecutor("const a = [];\n" +
-                    "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
-            eventLoop.await();
-            v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
-            consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-        }
+    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
+         JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
+        eventLoop.loadStaticModules(JNModuleType.CONSOLE, JNModuleType.TIMERS);
+        v8Runtime.getExecutor("const a = [];\n" +
+                "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
+        eventLoop.await();
+        v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
     }
 
 Hello Javenode (Async)
@@ -88,21 +85,18 @@ Hello Javenode (Async)
 
 .. code-block:: java
 
-    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime()) {
-        JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
-        consoleInterceptor.register(v8Runtime.getGlobalObject());
-        try (JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-            eventLoop.registerDynamicModules(JNModuleType.TIMERS_PROMISES);
-            v8Runtime.getExecutor(
-                    "import { setTimeout } from 'timers/promises';\n" +
-                    "const a = [];\n" +
-                    "setTimeout(10, 'Hello Javenode')\n" +
-                    "  .then(result => a.push(result));\n" +
-                    "globalThis.a = a;").setModule(true).executeVoid();
-            eventLoop.await();
-            v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
-            consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-        }
+    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
+         JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
+        eventLoop.loadStaticModules(JNModuleType.CONSOLE);
+        eventLoop.registerDynamicModules(JNModuleType.TIMERS_PROMISES);
+        v8Runtime.getExecutor(
+                "import { setTimeout } from 'timers/promises';\n" +
+                        "const a = [];\n" +
+                        "setTimeout(10, 'Hello Javenode')\n" +
+                        "  .then(result => a.push(result));\n" +
+                        "globalThis.a = a;").setModule(true).executeVoid();
+        eventLoop.await();
+        v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
     }
 
 TODO

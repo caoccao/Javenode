@@ -19,6 +19,7 @@ package com.caoccao.javet.javenode;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Host;
 import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.javenode.enums.JNModuleType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -39,5 +40,6 @@ public abstract class BaseJNTestSuite {
         v8Runtime = V8Host.getV8Instance().createV8Runtime();
         eventLoop = new JNEventLoop(v8Runtime);
         eventLoop.setAwaitTimeout(5).setAwaitTimeUnit(TimeUnit.SECONDS);
+        eventLoop.loadStaticModules(JNModuleType.CONSOLE);
     }
 }

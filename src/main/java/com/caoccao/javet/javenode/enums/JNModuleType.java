@@ -17,10 +17,12 @@
 package com.caoccao.javet.javenode.enums;
 
 import com.caoccao.javet.javenode.interfaces.IJNModule;
+import com.caoccao.javet.javenode.modules.console.ConsoleModule;
 import com.caoccao.javet.javenode.modules.timers.TimersModule;
 import com.caoccao.javet.javenode.modules.timers.TimersPromisesModule;
 
 public final class JNModuleType {
+    public static final JNModuleType CONSOLE = new JNModuleType(ConsoleModule.NAME, ConsoleModule.class);
     public static final JNModuleType TIMERS = new JNModuleType(TimersModule.NAME, TimersModule.class);
     public static final JNModuleType TIMERS_PROMISES = new JNModuleType(TimersPromisesModule.NAME, TimersPromisesModule.class);
 
