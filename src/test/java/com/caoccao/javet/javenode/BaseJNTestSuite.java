@@ -31,7 +31,6 @@ public abstract class BaseJNTestSuite {
     @AfterEach
     public void afterEach() throws JavetException {
         eventLoop.close();
-        v8Runtime.lowMemoryNotification();
         v8Runtime.close();
     }
 

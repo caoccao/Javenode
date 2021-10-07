@@ -24,7 +24,7 @@ import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 
 public class TutorialTimersTimeout {
-    public static void main(String[] args) throws JavetException {
+    public static void main(String[] args) throws JavetException, InterruptedException {
         try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime()) {
             JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
             consoleInterceptor.register(v8Runtime.getGlobalObject());
@@ -32,10 +32,9 @@ public class TutorialTimersTimeout {
                 eventLoop.loadStaticModule(JNModuleType.TIMERS);
                 v8Runtime.getExecutor("const a = [];\n" +
                         "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
-            } finally {
+                eventLoop.await();
                 v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
                 consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-                v8Runtime.lowMemoryNotification();
             }
         }
     }

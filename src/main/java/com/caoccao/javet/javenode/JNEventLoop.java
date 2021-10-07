@@ -27,7 +27,6 @@ import com.caoccao.javet.javenode.modules.JNDynamicModuleResolver;
 import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.utils.SimpleMap;
 import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -44,33 +43,34 @@ public class JNEventLoop implements IJavetClosable {
     public static final int AWAIT_SLEEP_INTERVAL_IN_MILLIS = 1;
     public static final int DEFAULT_AWAIT_TIMEOUT = 60;
     public static final TimeUnit DEFAULT_AWAIT_TIME_UNIT = TimeUnit.SECONDS;
-    public static final int DEFAULT_THREAD_POOL_SIZE = 4;
 
     protected TimeUnit awaitTimeUnit;
     protected long awaitTimeout;
     protected AtomicInteger blockingEventCount;
     protected volatile boolean closed;
     protected JNDynamicModuleResolver dynamicModuleResolver;
+    protected JNEventLoopOptions options;
     protected ReadWriteLock readWriteLockForStaticModuleMap;
     protected Map<String, IJNModule> staticModuleMap;
     protected V8Runtime v8Runtime;
     protected Vertx vertx;
 
     public JNEventLoop(V8Runtime v8Runtime) {
-        this(v8Runtime, new VertxOptions().setWorkerPoolSize(DEFAULT_THREAD_POOL_SIZE));
+        this(v8Runtime, new JNEventLoopOptions());
     }
 
-    public JNEventLoop(V8Runtime v8Runtime, VertxOptions vertxOptions) {
+    public JNEventLoop(V8Runtime v8Runtime, JNEventLoopOptions options) {
         awaitTimeout = DEFAULT_AWAIT_TIMEOUT;
         awaitTimeUnit = DEFAULT_AWAIT_TIME_UNIT;
         blockingEventCount = new AtomicInteger();
         closed = false;
         dynamicModuleResolver = new JNDynamicModuleResolver(this);
+        this.options = Objects.requireNonNull(options);
         readWriteLockForStaticModuleMap = new ReentrantReadWriteLock();
         staticModuleMap = new HashMap<>();
         this.v8Runtime = Objects.requireNonNull(v8Runtime);
         v8Runtime.setV8ModuleResolver(dynamicModuleResolver);
-        vertx = Vertx.vertx(vertxOptions);
+        vertx = Vertx.vertx(options.getVertxOptions());
     }
 
     public boolean await() throws InterruptedException {
@@ -114,6 +114,7 @@ public class JNEventLoop implements IJavetClosable {
             }
             if (closed) {
                 JavetResourceUtils.safeClose(dynamicModuleResolver);
+                vertx.close().toCompletionStage();
                 Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
                 try {
                     writeLock.lock();
@@ -131,7 +132,9 @@ public class JNEventLoop implements IJavetClosable {
                 } finally {
                     writeLock.unlock();
                 }
-                vertx.close().toCompletionStage();
+                if (options.isGcBeforeClosing()) {
+                    getV8Runtime().lowMemoryNotification();
+                }
             }
         }
     }

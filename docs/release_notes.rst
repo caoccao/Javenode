@@ -2,8 +2,13 @@
 Release Notes
 =============
 
+0.1.1
+-----
+
+* Added ``JNEventLoopOptions``
+
 0.1.0
-------
+-----
 
 * Added ``JNEventLoop``
 * Added module ``timers``

@@ -48,7 +48,7 @@ Maven
     <dependency>
         <groupId>com.caoccao.javet</groupId>
         <artifactId>javenode</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
     </dependency>
 
 Gradle Kotlin DSL
@@ -56,14 +56,14 @@ Gradle Kotlin DSL
 
 .. code-block:: kotlin
 
-    implementation("com.caoccao.javet:javenode:0.1.0")
+    implementation("com.caoccao.javet:javenode:0.1.1")
 
 Gradle Groovy DSL
 ^^^^^^^^^^^^^^^^^
 
 .. code-block:: groovy
 
-    implementation 'com.caoccao.javet:javenode:0.1.0'
+    implementation 'com.caoccao.javet:javenode:0.1.1'
 
 Hello Javenode (Sync)
 ---------------------
@@ -77,10 +77,9 @@ Hello Javenode (Sync)
             eventLoop.loadStaticModule(JNModuleType.TIMERS);
             v8Runtime.getExecutor("const a = [];\n" +
                     "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
-        } finally {
+            eventLoop.await();
             v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
             consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-            v8Runtime.lowMemoryNotification();
         }
     }
 
@@ -100,10 +99,9 @@ Hello Javenode (Async)
                     "setTimeout(10, 'Hello Javenode')\n" +
                     "  .then(result => a.push(result));\n" +
                     "globalThis.a = a;").setModule(true).executeVoid();
-        } finally {
+            eventLoop.await();
             v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
             consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-            v8Runtime.lowMemoryNotification();
         }
     }
 

@@ -36,10 +36,9 @@ public class TutorialTimersPromisesTimeout {
                                 "setTimeout(10, 'Hello Javenode')\n" +
                                 "  .then(result => a.push(result));\n" +
                                 "globalThis.a = a;").setModule(true).executeVoid();
-            } finally {
+                eventLoop.await();
                 v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
                 consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-                v8Runtime.lowMemoryNotification();
             }
         }
     }
