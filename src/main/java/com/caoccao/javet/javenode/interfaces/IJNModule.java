@@ -28,7 +28,7 @@ import java.util.Objects;
 
 public interface IJNModule extends IJavetClosable {
     default void bind() throws JavetException {
-        bind(getEventLoop().getV8Runtime().getGlobalObject());
+        bind(getV8Runtime().getGlobalObject());
     }
 
     default void bind(V8ValueObject v8ValueObject) throws JavetException {
@@ -52,7 +52,7 @@ public interface IJNModule extends IJavetClosable {
     <F extends IJNFunction> F putFunction(F iJNFunction);
 
     default void unbind() throws JavetException {
-        unbind(getEventLoop().getV8Runtime().getGlobalObject());
+        unbind(getV8Runtime().getGlobalObject());
     }
 
     default void unbind(V8ValueObject v8ValueObject) throws JavetException {

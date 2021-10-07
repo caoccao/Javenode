@@ -31,6 +31,7 @@ Major Features
 * Native Event Loop (vert.x)
 * Same Modules as Node.js
 * Modules
+    * console
     * timers
     * timers/promises
 
@@ -48,7 +49,7 @@ Maven
     <dependency>
         <groupId>com.caoccao.javet</groupId>
         <artifactId>javenode</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
     </dependency>
 
 Gradle Kotlin DSL
@@ -56,55 +57,46 @@ Gradle Kotlin DSL
 
 .. code-block:: kotlin
 
-    implementation("com.caoccao.javet:javenode:0.1.0")
+    implementation("com.caoccao.javet:javenode:0.1.1")
 
 Gradle Groovy DSL
 ^^^^^^^^^^^^^^^^^
 
 .. code-block:: groovy
 
-    implementation 'com.caoccao.javet:javenode:0.1.0'
+    implementation 'com.caoccao.javet:javenode:0.1.1'
 
-Hello Javenode (Sync)
----------------------
+Hello Javenode (Static Import)
+------------------------------
 
 .. code-block:: java
 
-    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime()) {
-        JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
-        consoleInterceptor.register(v8Runtime.getGlobalObject());
-        try (JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-            eventLoop.loadStaticModule(JNModuleType.TIMERS);
-            v8Runtime.getExecutor("const a = [];\n" +
-                    "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
-        } finally {
-            v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
-            consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-            v8Runtime.lowMemoryNotification();
-        }
+    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
+         JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
+        eventLoop.loadStaticModules(JNModuleType.CONSOLE, JNModuleType.TIMERS);
+        v8Runtime.getExecutor("const a = [];\n" +
+                "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
+        eventLoop.await();
+        v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
     }
 
-Hello Javenode (Async)
-----------------------
+Hello Javenode (Dynamic Import)
+-------------------------------
 
 .. code-block:: java
 
-    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime()) {
-        JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
-        consoleInterceptor.register(v8Runtime.getGlobalObject());
-        try (JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-            eventLoop.registerDynamicModule(JNModuleType.TIMERS_PROMISES);
-            v8Runtime.getExecutor(
-                    "import { setTimeout } from 'timers/promises';\n" +
-                    "const a = [];\n" +
-                    "setTimeout(10, 'Hello Javenode')\n" +
-                    "  .then(result => a.push(result));\n" +
-                    "globalThis.a = a;").setModule(true).executeVoid();
-        } finally {
-            v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
-            consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-            v8Runtime.lowMemoryNotification();
-        }
+    try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
+         JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
+        eventLoop.loadStaticModules(JNModuleType.CONSOLE);
+        eventLoop.registerDynamicModules(JNModuleType.TIMERS_PROMISES);
+        v8Runtime.getExecutor(
+                "import { setTimeout } from 'timers/promises';\n" +
+                        "const a = [];\n" +
+                        "setTimeout(10, 'Hello Javenode')\n" +
+                        "  .then(result => a.push(result));\n" +
+                        "globalThis.a = a;").setModule(true).executeVoid();
+        eventLoop.await();
+        v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
     }
 
 TODO
@@ -122,4 +114,4 @@ Documents
 =========
 
 * `Javet <https://github.com/caoccao/Javet>`_
-* `Release Notes <docs/release_notes.rst>`_
+* `Javenode Document Portal <https://www.caoccao.com/Javenode/>`_

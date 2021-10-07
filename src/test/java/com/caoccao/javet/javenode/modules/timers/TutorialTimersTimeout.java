@@ -17,26 +17,20 @@
 package com.caoccao.javet.javenode.modules.timers;
 
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.interception.logging.JavetStandardConsoleInterceptor;
 import com.caoccao.javet.interop.V8Host;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 
 public class TutorialTimersTimeout {
-    public static void main(String[] args) throws JavetException {
-        try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime()) {
-            JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
-            consoleInterceptor.register(v8Runtime.getGlobalObject());
-            try (JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-                eventLoop.loadStaticModule(JNModuleType.TIMERS);
-                v8Runtime.getExecutor("const a = [];\n" +
-                        "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
-            } finally {
-                v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
-                consoleInterceptor.unregister(v8Runtime.getGlobalObject());
-                v8Runtime.lowMemoryNotification();
-            }
+    public static void main(String[] args) throws JavetException, InterruptedException {
+        try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
+             JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
+            eventLoop.loadStaticModules(JNModuleType.CONSOLE, JNModuleType.TIMERS);
+            v8Runtime.getExecutor("const a = [];\n" +
+                    "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
+            eventLoop.await();
+            v8Runtime.getExecutor("console.log(a[0]);").executeVoid();
         }
     }
 }
