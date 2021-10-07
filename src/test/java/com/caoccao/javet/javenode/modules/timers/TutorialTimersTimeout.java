@@ -29,7 +29,7 @@ public class TutorialTimersTimeout {
             JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
             consoleInterceptor.register(v8Runtime.getGlobalObject());
             try (JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-                eventLoop.loadStaticModule(JNModuleType.TIMERS);
+                eventLoop.loadStaticModules(JNModuleType.TIMERS);
                 v8Runtime.getExecutor("const a = [];\n" +
                         "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
                 eventLoop.await();

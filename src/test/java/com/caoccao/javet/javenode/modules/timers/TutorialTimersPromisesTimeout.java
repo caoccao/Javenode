@@ -29,7 +29,7 @@ public class TutorialTimersPromisesTimeout {
             JavetStandardConsoleInterceptor consoleInterceptor = new JavetStandardConsoleInterceptor(v8Runtime);
             consoleInterceptor.register(v8Runtime.getGlobalObject());
             try (JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-                eventLoop.registerDynamicModule(JNModuleType.TIMERS_PROMISES);
+                eventLoop.registerDynamicModules(JNModuleType.TIMERS_PROMISES);
                 v8Runtime.getExecutor(
                         "import { setTimeout } from 'timers/promises';\n" +
                                 "const a = [];\n" +

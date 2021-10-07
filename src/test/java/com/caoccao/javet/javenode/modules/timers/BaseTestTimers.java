@@ -21,6 +21,8 @@ import com.caoccao.javet.javenode.BaseJNTestSuite;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import org.junit.jupiter.api.BeforeEach;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class BaseTestTimers extends BaseJNTestSuite {
     protected long originalDefaultDelay;
 
@@ -34,7 +36,7 @@ public class BaseTestTimers extends BaseJNTestSuite {
     @Override
     public void beforeEach() throws JavetException {
         super.beforeEach();
-        eventLoop.loadStaticModule(JNModuleType.TIMERS);
+        assertEquals(1, eventLoop.loadStaticModules(JNModuleType.TIMERS));
         originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
         TimersConstants.DEFAULT_DELAY = 100;
     }

@@ -32,7 +32,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -93,26 +92,31 @@ public final class JNDynamicModuleResolver implements IV8ModuleResolver, IJavetC
         return closed;
     }
 
-    public void registerModule(JNModuleType jnModuleType) {
-        String moduleName = Objects.requireNonNull(jnModuleType).getName();
-        Lock readLock = readWriteLock.readLock();
-        try {
-            readLock.lock();
-            if (dynamicModuleMap.containsKey(moduleName)) {
-                return;
-            }
-        } finally {
-            readLock.unlock();
+    public int registerModules(JNModuleType... jnModuleTypes) {
+        if (jnModuleTypes.length == 0) {
+            return 0;
         }
+        int registeredModuleCount = 0;
         Lock writeLock = readWriteLock.writeLock();
         try {
             writeLock.lock();
-            DynamicModule dynamicModule = new DynamicModule();
-            dynamicModule.type = jnModuleType;
-            dynamicModuleMap.put(moduleName, dynamicModule);
+            for (JNModuleType jnModuleType : jnModuleTypes) {
+                if (jnModuleType == null) {
+                    continue;
+                }
+                String moduleName = jnModuleType.getName();
+                if (moduleName == null || dynamicModuleMap.containsKey(moduleName)) {
+                    continue;
+                }
+                DynamicModule dynamicModule = new DynamicModule();
+                dynamicModule.type = jnModuleType;
+                dynamicModuleMap.put(moduleName, dynamicModule);
+                ++registeredModuleCount;
+            }
         } finally {
             writeLock.unlock();
         }
+        return registeredModuleCount;
     }
 
     @Override

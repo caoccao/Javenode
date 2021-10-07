@@ -124,9 +124,9 @@ public class JNEventLoop implements IJavetClosable {
                         } catch (Throwable t) {
                             getLogger().logError(
                                     t, "Failed to unbind {0}.", iJNModule.getType().getName());
+                        } finally {
+                            JavetResourceUtils.safeClose(iJNModule);
                         }
-                        JavetResourceUtils.safeClose(iJNModule);
-                        staticModuleMap.remove(iJNModule.getType().getName());
                     }
                     staticModuleMap.clear();
                 } finally {
@@ -178,46 +178,48 @@ public class JNEventLoop implements IJavetClosable {
         return closed;
     }
 
-    public boolean loadStaticModule(JNModuleType jnModuleType) throws JavetException {
+    public int loadStaticModules(JNModuleType... jnModuleTypes) throws JavetException {
         if (isClosed()) {
-            return false;
+            return 0;
         }
-        Objects.requireNonNull(jnModuleType);
-        String moduleName = jnModuleType.getName();
-        Lock readLock = readWriteLockForStaticModuleMap.readLock();
-        try {
-            readLock.lock();
-            if (staticModuleMap.containsKey(moduleName)) {
-                return true;
+        int loadedModuleCount = 0;
+        if (jnModuleTypes.length > 0) {
+            Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
+            try {
+                writeLock.lock();
+                for (JNModuleType jnModuleType : jnModuleTypes) {
+                    if (jnModuleType == null) {
+                        continue;
+                    }
+                    String moduleName = jnModuleType.getName();
+                    if (moduleName == null || staticModuleMap.containsKey(moduleName)) {
+                        continue;
+                    }
+                    try {
+                        Class<? extends IJNModule> moduleClass = jnModuleType.getModuleClass();
+                        Constructor constructor = moduleClass.getConstructor(getClass());
+                        IJNModule iJNModule = (IJNModule) constructor.newInstance(this);
+                        iJNModule.bind();
+                        staticModuleMap.put(moduleName, iJNModule);
+                        ++loadedModuleCount;
+                    } catch (JavetException e) {
+                        throw e;
+                    } catch (Throwable t) {
+                        getLogger().logError(t, "Failed to load static module {0}.", moduleName);
+                    }
+                }
+            } finally {
+                writeLock.unlock();
             }
-        } finally {
-            readLock.unlock();
         }
-        Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
-        try {
-            writeLock.lock();
-            Class<? extends IJNModule> moduleClass = jnModuleType.getModuleClass();
-            Constructor constructor = moduleClass.getConstructor(getClass());
-            IJNModule iJNModule = (IJNModule) constructor.newInstance(this);
-            iJNModule.bind();
-            staticModuleMap.put(moduleName, iJNModule);
-            return true;
-        } catch (JavetException e) {
-            throw e;
-        } catch (Throwable t) {
-            getLogger().logError(t, "Failed to load static module {0}.", moduleName);
-        } finally {
-            writeLock.unlock();
-        }
-        return false;
+        return loadedModuleCount;
     }
 
-    public boolean registerDynamicModule(JNModuleType jnModuleType) {
-        if (isClosed()) {
-            return false;
+    public int registerDynamicModules(JNModuleType... jnModuleTypes) {
+        if (!isClosed()) {
+            return dynamicModuleResolver.registerModules(jnModuleTypes);
         }
-        dynamicModuleResolver.registerModule(jnModuleType);
-        return true;
+        return 0;
     }
 
     public JNEventLoop setAwaitTimeUnit(TimeUnit awaitTimeUnit) {
@@ -231,23 +233,35 @@ public class JNEventLoop implements IJavetClosable {
         return this;
     }
 
-    public boolean unloadStaticModule(JNModuleType jnModuleType) throws JavetException {
-        if (isClosed()) {
-            return false;
+    public int unloadStaticModules(JNModuleType... jnModuleTypes) throws JavetException {
+        if (isClosed() || jnModuleTypes.length == 0) {
+            return 0;
         }
-        Objects.requireNonNull(jnModuleType);
+        int unloadedModuleCount = 0;
         Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
         try {
             writeLock.lock();
-            if (staticModuleMap.containsKey(jnModuleType.getName())) {
-                IJNModule iJNModule = staticModuleMap.get(jnModuleType.getName());
-                iJNModule.unbind();
-                staticModuleMap.remove(jnModuleType.getName());
-                return true;
+            for (JNModuleType jnModuleType : jnModuleTypes) {
+                if (jnModuleType == null) {
+                    continue;
+                }
+                if (staticModuleMap.containsKey(jnModuleType.getName())) {
+                    IJNModule iJNModule = staticModuleMap.get(jnModuleType.getName());
+                    try {
+                        iJNModule.unbind();
+                    } catch (Throwable t) {
+                        getLogger().logError(
+                                t, "Failed to unbind {0}.", iJNModule.getType().getName());
+                    } finally {
+                        JavetResourceUtils.safeClose(iJNModule);
+                        staticModuleMap.remove(jnModuleType.getName());
+                        ++unloadedModuleCount;
+                    }
+                }
             }
         } finally {
             writeLock.unlock();
         }
-        return false;
+        return unloadedModuleCount;
     }
 }
