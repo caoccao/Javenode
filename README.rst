@@ -114,4 +114,4 @@ Documents
 =========
 
 * `Javet <https://github.com/caoccao/Javet>`_
-* `Release Notes <docs/release_notes.rst>`_
+* `Javenode Document Portal <https://www.caoccao.com/Javenode/>`_
