@@ -85,11 +85,13 @@ public class JNEventLoop implements IJavetClosable {
         Objects.requireNonNull(timeUnit);
         long totalMillis = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
         long startMillis = System.currentTimeMillis();
+        getV8Runtime().await();
         while (blockingEventCount.get() > 0) {
             if (System.currentTimeMillis() - startMillis >= totalMillis) {
                 return false;
             }
             TimeUnit.MILLISECONDS.sleep(AWAIT_SLEEP_INTERVAL_IN_MILLIS);
+            getV8Runtime().await();
         }
         return true;
     }
