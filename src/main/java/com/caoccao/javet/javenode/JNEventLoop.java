@@ -60,6 +60,10 @@ public class JNEventLoop implements IJavetClosable {
     }
 
     public JNEventLoop(V8Runtime v8Runtime, JNEventLoopOptions options) {
+        this(v8Runtime, Objects.requireNonNull(options), Vertx.vertx(Objects.requireNonNull(options.getVertxOptions())));
+    }
+
+    public JNEventLoop(V8Runtime v8Runtime, JNEventLoopOptions options, Vertx vertx) {
         awaitTimeout = DEFAULT_AWAIT_TIMEOUT;
         awaitTimeUnit = DEFAULT_AWAIT_TIME_UNIT;
         blockingEventCount = new AtomicInteger();
@@ -70,7 +74,7 @@ public class JNEventLoop implements IJavetClosable {
         staticModuleMap = new HashMap<>();
         this.v8Runtime = Objects.requireNonNull(v8Runtime);
         v8Runtime.setV8ModuleResolver(dynamicModuleResolver);
-        vertx = Vertx.vertx(options.getVertxOptions());
+        this.vertx = vertx;
     }
 
     public boolean await() throws InterruptedException {
