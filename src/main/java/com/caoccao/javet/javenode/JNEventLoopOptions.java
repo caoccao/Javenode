@@ -23,6 +23,7 @@ import java.util.Objects;
 public final class JNEventLoopOptions {
     public static final int DEFAULT_THREAD_POOL_SIZE = 4;
     private boolean gcBeforeClosing;
+    private boolean pooled;
     private VertxOptions vertxOptions;
 
     public JNEventLoopOptions() {
@@ -30,7 +31,8 @@ public final class JNEventLoopOptions {
     }
 
     public JNEventLoopOptions(VertxOptions vertxOptions) {
-        this.gcBeforeClosing = true;
+        gcBeforeClosing = true;
+        pooled = false;
         this.vertxOptions = Objects.requireNonNull(vertxOptions);
     }
 
@@ -42,8 +44,17 @@ public final class JNEventLoopOptions {
         return gcBeforeClosing;
     }
 
+    public boolean isPooled() {
+        return pooled;
+    }
+
     public JNEventLoopOptions setGcBeforeClosing(boolean gcBeforeClosing) {
         this.gcBeforeClosing = gcBeforeClosing;
+        return this;
+    }
+
+    public JNEventLoopOptions setPooled(boolean pooled) {
+        this.pooled = pooled;
         return this;
     }
 }

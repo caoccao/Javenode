@@ -120,7 +120,10 @@ public class JNEventLoop implements IJavetClosable {
             }
             if (closed) {
                 JavetResourceUtils.safeClose(dynamicModuleResolver);
-                vertx.close().toCompletionStage();
+                if (!options.isPooled()) {
+                    // The event loop only closes the vertx if it is not in a pool.
+                    vertx.close().toCompletionStage();
+                }
                 Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
                 try {
                     writeLock.lock();
