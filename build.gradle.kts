@@ -18,7 +18,6 @@ import org.gradle.internal.os.OperatingSystem
 
 object Config {
     object Projects {
-        const val CGLIB = "cglib:cglib:${Versions.CGLIB}"
         const val JAVET = "com.caoccao.javet:javet:${Versions.JAVET}"
         const val JAVET_LINUX_ARM64 = "com.caoccao.javet:javet-linux-arm64:${Versions.JAVET}"
         const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
@@ -28,7 +27,6 @@ object Config {
     }
 
     object Versions {
-        const val CGLIB = "3.3.0"
         const val JAVET = "3.0.0"
         const val JUNIT_JUPITER = "5.10.0"
         const val VERTX = "4.1.3"
@@ -53,7 +51,6 @@ repositories {
 }
 
 dependencies {
-    implementation(Config.Projects.CGLIB)
     val os = OperatingSystem.current()
     val cpuArch = System.getProperty("os.arch")
     if (os.isMacOsX) {

@@ -160,7 +160,7 @@ public class ConsoleModule extends BaseJNModule {
             V8Value v8Value = v8Values[0];
             if (v8Value instanceof V8ValueString) {
                 String label = ((V8ValueString) v8Value).getValue();
-                if (label.length() > 0) {
+                if (!label.isEmpty()) {
                     return label;
                 }
             }

@@ -104,7 +104,7 @@ Hello Javenode (Dynamic Import)
 TODO
 ====
 
-* To implement Java object proxy with cglib
+* To implement `fetch`
 * To implement `fs`
 
 License
