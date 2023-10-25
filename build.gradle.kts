@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021. caoccao.com Sam Cao
+ * Copyright (c) 2021-2023. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ object Config {
     object Projects {
         const val CGLIB = "cglib:cglib:${Versions.CGLIB}"
         const val JAVET = "com.caoccao.javet:javet:${Versions.JAVET}"
+        const val JAVET_LINUX_ARM64 = "com.caoccao.javet:javet-linux-arm64:${Versions.JAVET}"
         const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
         const val JUNIT_JUPITER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT_JUPITER}"
         const val JUNIT_JUPITER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT_JUPITER}"
@@ -29,7 +30,7 @@ object Config {
     object Versions {
         const val CGLIB = "3.3.0"
         const val JAVET = "3.0.0"
-        const val JUNIT_JUPITER = "5.7.0"
+        const val JUNIT_JUPITER = "5.10.0"
         const val VERTX = "4.1.3"
     }
 }
@@ -53,8 +54,12 @@ repositories {
 
 dependencies {
     implementation(Config.Projects.CGLIB)
-    if (OperatingSystem.current().isMacOsX()) {
+    val os = OperatingSystem.current()
+    val cpuArch = System.getProperty("os.arch")
+    if (os.isMacOsX) {
         implementation(Config.Projects.JAVET_MACOS)
+    } else if (os.isLinux && (cpuArch == "aarch64" || cpuArch == "arm64")) {
+        implementation(Config.Projects.JAVET_LINUX_ARM64)
     } else {
         implementation(Config.Projects.JAVET)
     }
