@@ -49,7 +49,7 @@ Maven
     <dependency>
         <groupId>com.caoccao.javet</groupId>
         <artifactId>javenode</artifactId>
-        <version>0.1.2</version>
+        <version>0.2.0</version>
     </dependency>
 
 Gradle Kotlin DSL
@@ -57,14 +57,14 @@ Gradle Kotlin DSL
 
 .. code-block:: kotlin
 
-    implementation("com.caoccao.javet:javenode:0.1.2")
+    implementation("com.caoccao.javet:javenode:0.2.0")
 
 Gradle Groovy DSL
 ^^^^^^^^^^^^^^^^^
 
 .. code-block:: groovy
 
-    implementation 'com.caoccao.javet:javenode:0.1.2'
+    implementation 'com.caoccao.javet:javenode:0.2.0'
 
 Hello Javenode (Static Import)
 ------------------------------

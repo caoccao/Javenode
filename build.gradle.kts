@@ -28,7 +28,7 @@ object Config {
 
     object Versions {
         const val CGLIB = "3.3.0"
-        const val JAVET = "1.0.3"
+        const val JAVET = "3.0.0"
         const val JUNIT_JUPITER = "5.7.0"
         const val VERTX = "4.1.3"
     }
@@ -44,7 +44,7 @@ repositories {
 }
 
 group = "com.caoccao.javet"
-version = "0.1.2"
+version = "0.2.0"
 
 
 repositories {
