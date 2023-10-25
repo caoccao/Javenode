@@ -1,7 +1,9 @@
 Javenode
 ========
 
-|Discord| |Donate| |Linux Build|
+|Discord| |Donate|
+
+|Linux Build|
 
 .. |Discord| image:: https://img.shields.io/discord/870518906115211305?label=join%20our%20Discord&style=for-the-badge
     :target: https://discord.gg/R4vvKU96gw
@@ -9,7 +11,7 @@ Javenode
 .. |Donate| image:: https://img.shields.io/badge/Donate-Paypal-green?style=for-the-badge
     :target: https://paypal.me/caoccao?locale.x=en_US
 
-.. |Linux Build| image:: https://img.shields.io/github/workflow/status/caoccao/Javenode/Linux%20Build?label=Linux%20Build&style=for-the-badge
+.. |Linux Build| image:: https://github.com/caoccao/Javenode/actions/workflows/linux_build.yml/badge.svg
     :target: https://github.com/caoccao/Javenode/actions/workflows/linux_build.yml
 
 Javenode is Java + V8 + Node.js. It is a Node.js simulator with Java in V8.
