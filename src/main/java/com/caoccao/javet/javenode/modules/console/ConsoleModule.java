@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021. caoccao.com Sam Cao
+ * Copyright (c) 2021-2023. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,7 +160,7 @@ public class ConsoleModule extends BaseJNModule {
             V8Value v8Value = v8Values[0];
             if (v8Value instanceof V8ValueString) {
                 String label = ((V8ValueString) v8Value).getValue();
-                if (label.length() > 0) {
+                if (!label.isEmpty()) {
                     return label;
                 }
             }

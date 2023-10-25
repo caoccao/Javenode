@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021. caoccao.com Sam Cao
+ * Copyright (c) 2021-2023. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public class TimersPromisesInterval extends BaseJNFunction {
             }
         };
         JavetCallbackContext javetCallbackContext = new JavetCallbackContext(
-                anonymous, anonymous.getClass().getMethod(FUNCTION_GET));
+                FUNCTION_GET, anonymous, anonymous.getClass().getMethod(FUNCTION_GET));
         return getV8Runtime().createV8ValueFunction(javetCallbackContext);
     }
 

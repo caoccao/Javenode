@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021. caoccao.com Sam Cao
+ * Copyright (c) 2021-2023. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,10 @@ public class JNEventLoop implements IJavetClosable {
     }
 
     public JNEventLoop(V8Runtime v8Runtime, JNEventLoopOptions options) {
+        this(v8Runtime, Objects.requireNonNull(options), Vertx.vertx(Objects.requireNonNull(options.getVertxOptions())));
+    }
+
+    public JNEventLoop(V8Runtime v8Runtime, JNEventLoopOptions options, Vertx vertx) {
         awaitTimeout = DEFAULT_AWAIT_TIMEOUT;
         awaitTimeUnit = DEFAULT_AWAIT_TIME_UNIT;
         blockingEventCount = new AtomicInteger();
@@ -70,7 +74,7 @@ public class JNEventLoop implements IJavetClosable {
         staticModuleMap = new HashMap<>();
         this.v8Runtime = Objects.requireNonNull(v8Runtime);
         v8Runtime.setV8ModuleResolver(dynamicModuleResolver);
-        vertx = Vertx.vertx(options.getVertxOptions());
+        this.vertx = vertx;
     }
 
     public boolean await() throws InterruptedException {
@@ -85,11 +89,13 @@ public class JNEventLoop implements IJavetClosable {
         Objects.requireNonNull(timeUnit);
         long totalMillis = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
         long startMillis = System.currentTimeMillis();
+        getV8Runtime().await();
         while (blockingEventCount.get() > 0) {
             if (System.currentTimeMillis() - startMillis >= totalMillis) {
                 return false;
             }
             TimeUnit.MILLISECONDS.sleep(AWAIT_SLEEP_INTERVAL_IN_MILLIS);
+            getV8Runtime().await();
         }
         return true;
     }
@@ -114,7 +120,10 @@ public class JNEventLoop implements IJavetClosable {
             }
             if (closed) {
                 JavetResourceUtils.safeClose(dynamicModuleResolver);
-                vertx.close().toCompletionStage();
+                if (!options.isPooled()) {
+                    // The event loop only closes the vertx if it is not in a pool.
+                    vertx.close().toCompletionStage();
+                }
                 Lock writeLock = readWriteLockForStaticModuleMap.writeLock();
                 try {
                     writeLock.lock();

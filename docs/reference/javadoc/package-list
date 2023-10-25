@@ -1,0 +1,6 @@
+com.caoccao.javet.javenode
+com.caoccao.javet.javenode.enums
+com.caoccao.javet.javenode.interfaces
+com.caoccao.javet.javenode.modules
+com.caoccao.javet.javenode.modules.console
+com.caoccao.javet.javenode.modules.timers
