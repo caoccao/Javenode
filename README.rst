@@ -113,7 +113,7 @@ TODO
 License
 =======
 
-`APACHE LICENSE, VERSION 2.0 <LICENSE>`_.
+`APACHE LICENSE, VERSION 2.0 <LICENSE>`_
 
 Documents
 =========
