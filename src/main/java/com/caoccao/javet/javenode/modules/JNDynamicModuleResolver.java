@@ -138,7 +138,7 @@ public final class JNDynamicModuleResolver implements IV8ModuleResolver, IJavetC
                 }
                 String sourceCode = getSourceCode(dynamicModule.type);
                 Class<? extends IJNModule> moduleClass = dynamicModule.type.getModuleClass();
-                Constructor constructor = moduleClass.getConstructor(eventLoop.getClass());
+                Constructor<?> constructor = moduleClass.getConstructor(eventLoop.getClass());
                 dynamicModule.jnModule = (IJNModule) constructor.newInstance(eventLoop);
                 dynamicModule.bindingObject = eventLoop.getV8Runtime().createV8ValueObject();
                 dynamicModule.jnModule.bind(dynamicModule.bindingObject);
