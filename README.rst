@@ -1,9 +1,12 @@
 Javenode
 ========
 
-|Discord| |Donate|
+|Maven Central| |Discord| |Donate|
 
 |Linux Build|
+
+.. |Maven Central| image:: https://img.shields.io/maven-central/v/com.caoccao.javet/javenode?style=for-the-badge
+    :target: https://central.sonatype.com/artifact/com.caoccao.javet/javenode
 
 .. |Discord| image:: https://img.shields.io/discord/870518906115211305?label=join%20our%20Discord&style=for-the-badge
     :target: https://discord.gg/R4vvKU96gw
@@ -25,7 +28,7 @@ External Dependencies     No                Yes
 Platform Dependent        Yes               No
 ========================= ================= ================
 
-If you like my work, please **Star** this project. And, you may follow me `@sjtucaocao <https://twitter.com/sjtucaocao>`_, or visit http://caoccao.blogspot.com/. And the official support channel is at `discord <https://discord.gg/R4vvKU96gw>`_.
+If you like my work, please **Star** this project. And, you may follow me `@sjtucaocao <https://twitter.com/sjtucaocao>`_, or visit https://sjtucaocao.medium.com/ or http://caoccao.blogspot.com/. And the official support channel is at `discord <https://discord.gg/R4vvKU96gw>`_.
 
 Major Features
 ==============

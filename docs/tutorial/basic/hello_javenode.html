@@ -218,11 +218,7 @@
           <section id="hello-javenode">
 <h1>Hello Javenode<a class="headerlink" href="#hello-javenode" title="Link to this heading">#</a></h1>
 <p>Javenode works on top of <a class="reference external" href="https://github.com/caoccao/Javet">Javet</a>, so the tutorial may skip some Javet detail. If you are not familiar with Javet, you may visit the <a class="reference external" href="https://www.caoccao.com/Javet/tutorial/index.html">Javet tutorial</a>.</p>
-<blockquote>
-<div><p>implementation 'com.caoccao.javet:javenode:0.2.0'</p>
-</div></blockquote>
-<section id="hello-javenode-static-import">
-<h2>Hello Javenode (Static Import)<a class="headerlink" href="#hello-javenode-static-import" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
 <div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">V8Runtime</span><span class="w"> </span><span class="n">v8Runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">V8Host</span><span class="p">.</span><span class="na">getV8Instance</span><span class="p">().</span><span class="na">createV8Runtime</span><span class="p">();</span>
 <span class="w">     </span><span class="n">JNEventLoop</span><span class="w"> </span><span class="n">eventLoop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JNEventLoop</span><span class="p">(</span><span class="n">v8Runtime</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">eventLoop</span><span class="p">.</span><span class="na">loadStaticModules</span><span class="p">(</span><span class="n">JNModuleType</span><span class="p">.</span><span class="na">CONSOLE</span><span class="p">,</span><span class="w"> </span><span class="n">JNModuleType</span><span class="p">.</span><span class="na">TIMERS</span><span class="p">);</span>
@@ -233,7 +229,6 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-</section>
 <section id="hello-javenode-dynamic-import">
 <h2>Hello Javenode (Dynamic Import)<a class="headerlink" href="#hello-javenode-dynamic-import" title="Link to this heading">#</a></h2>
 <div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">V8Runtime</span><span class="w"> </span><span class="n">v8Runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">V8Host</span><span class="p">.</span><span class="na">getV8Instance</span><span class="p">().</span><span class="na">createV8Runtime</span><span class="p">();</span>
@@ -247,6 +242,8 @@
 <span class="w">                    </span><span class="s">&quot;  .then(result =&gt; a.push(result));\n&quot;</span><span class="w"> </span><span class="o">+</span>
 <span class="w">                    </span><span class="s">&quot;globalThis.a = a;&quot;</span><span class="p">).</span><span class="na">setModule</span><span class="p">(</span><span class="kc">true</span><span class="p">).</span><span class="na">executeVoid</span><span class="p">();</span>
 <span class="w">    </span><span class="n">eventLoop</span><span class="p">.</span><span class="na">await</span><span class="p">();</span>
+<span class="w">    </span><span class="n">v8Runtime</span><span class="p">.</span><span class="na">getExecutor</span><span class="p">(</span><span class="s">&quot;console.log(a[0]);&quot;</span><span class="p">).</span><span class="na">executeVoid</span><span class="p">();</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -307,7 +304,6 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Hello Javenode</a><ul>
-<li><a class="reference internal" href="#hello-javenode-static-import">Hello Javenode (Static Import)</a></li>
 <li><a class="reference internal" href="#hello-javenode-dynamic-import">Hello Javenode (Dynamic Import)</a></li>
 </ul>
 </li>

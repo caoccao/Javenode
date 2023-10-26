@@ -3,5 +3,5 @@ Installation
 ============
 
 .. include:: ../../../README.rst
-    :start-line: 40
-    :end-line: 67
+    :start-line: 46
+    :end-line: 73
