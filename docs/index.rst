@@ -1,5 +1,5 @@
 .. include:: ../README.rst
-    :start-line: 1
+    :start-line: 0
     :end-line: 121
 
 .. toctree::
