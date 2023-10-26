@@ -17,6 +17,7 @@
 package com.caoccao.javet.javenode.modules;
 
 import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.interop.callback.JavetCallbackContext;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNPrivatePropertyEnum;
 import com.caoccao.javet.javenode.interfaces.IJNFunction;
@@ -38,11 +39,13 @@ public abstract class BaseJNModule implements IJNModule {
     private final JNEventLoop eventLoop;
     private final Map<Integer, IJNFunction> functionMap;
     protected volatile boolean closed;
+    protected JavetCallbackContext[] javetCallbackContexts;
 
     public BaseJNModule(JNEventLoop eventLoop) {
         closed = false;
         this.eventLoop = Objects.requireNonNull(eventLoop);
         functionMap = new TreeMap<>();
+        javetCallbackContexts = null;
         readWriteLock = new ReentrantReadWriteLock();
     }
 
@@ -56,6 +59,7 @@ public abstract class BaseJNModule implements IJNModule {
                     JavetResourceUtils.safeClose(iJNFunction);
                     functionMap.remove(iJNFunction.getReferenceId());
                 }
+                javetCallbackContexts = null;
             } finally {
                 writeLock.unlock();
                 closed = true;
