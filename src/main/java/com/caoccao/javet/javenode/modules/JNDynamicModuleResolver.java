@@ -16,7 +16,6 @@
 
 package com.caoccao.javet.javenode.modules;
 
-import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interfaces.IJavetClosable;
 import com.caoccao.javet.interfaces.IV8ModuleResolver;
@@ -29,7 +28,6 @@ import com.caoccao.javet.values.reference.IV8Module;
 import com.caoccao.javet.values.reference.V8ValueObject;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -72,17 +70,11 @@ public final class JNDynamicModuleResolver implements IV8ModuleResolver, IJavetC
     }
 
     private String getSourceCode(JNModuleType jnModuleType) {
-        Class<? extends IJNModule> moduleClass = jnModuleType.getModuleClass();
         StringBuilder stringBuilder = new StringBuilder();
-        for (Method method : moduleClass.getMethods()) {
-            if (method.isAnnotationPresent(V8Function.class)) {
-                V8Function v8Function = method.getAnnotation(V8Function.class);
-                String functionName = v8Function.name() == null || v8Function.name().length() == 0 ?
-                        method.getName() : v8Function.name();
-                stringBuilder.append("export const ").append(functionName).append(" = ").append(DUMMY_VAR_NAME).append(".")
-                        .append(functionName).append("? ").append(DUMMY_VAR_NAME).append(".")
-                        .append(functionName).append(": undefined;\n");
-            }
+        for (String identifier : jnModuleType.getIdentifiers()) {
+            stringBuilder.append("export const ").append(identifier).append(" = ").append(DUMMY_VAR_NAME).append(".")
+                    .append(identifier).append("? ").append(DUMMY_VAR_NAME).append(".")
+                    .append(identifier).append(": undefined;\n");
         }
         return stringBuilder.toString();
     }

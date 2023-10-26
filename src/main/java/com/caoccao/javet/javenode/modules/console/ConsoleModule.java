@@ -277,7 +277,7 @@ public class ConsoleModule extends BaseJNModule implements IJavetDirectCallable 
                     return ERROR_FORMAT_IS_UNDEFINED;
                 } else {
                     String format = v8Value.toString();
-                    if (format == null || format.length() == 0) {
+                    if (format == null || format.isEmpty()) {
                         return ERROR_FORMAT_IS_NULL;
                     } else {
                         List<Object> objectArgs = new ArrayList<>();

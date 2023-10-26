@@ -16,8 +16,10 @@
 
 package com.caoccao.javet.javenode.modules.timers;
 
-import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.interop.callback.IJavetDirectCallable;
+import com.caoccao.javet.interop.callback.JavetCallbackContext;
+import com.caoccao.javet.interop.callback.JavetCallbackType;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.modules.BaseJNModule;
@@ -25,7 +27,7 @@ import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueInteger;
 import com.caoccao.javet.values.reference.V8ValuePromise;
 
-public class TimersPromisesModule extends BaseJNModule {
+public class TimersPromisesModule extends BaseJNModule implements IJavetDirectCallable {
     public static final String NAME = "timers/promises";
 
     public TimersPromisesModule(JNEventLoop eventLoop) {
@@ -48,11 +50,31 @@ public class TimersPromisesModule extends BaseJNModule {
     }
 
     @Override
+    public JavetCallbackContext[] getCallbackContexts() {
+        if (javetCallbackContexts == null) {
+            javetCallbackContexts = new JavetCallbackContext[]{
+                    new JavetCallbackContext(
+                            "setImmediate",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::setImmediate),
+                    new JavetCallbackContext(
+                            "setInterval",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::setInterval),
+                    new JavetCallbackContext(
+                            "setTimeout",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::setTimeout),
+            };
+        }
+        return javetCallbackContexts;
+    }
+
+    @Override
     public JNModuleType getType() {
         return JNModuleType.TIMERS_PROMISES;
     }
 
-    @V8Function
     public V8ValuePromise setImmediate(V8Value... v8ValueArgs) throws JavetException {
         V8Value v8ValueResult = null;
         if (v8ValueArgs != null && v8ValueArgs.length > 0) {
@@ -64,7 +86,6 @@ public class TimersPromisesModule extends BaseJNModule {
         return timersPromisesImmediate.getV8ValuePromiseResolver().getPromise();
     }
 
-    @V8Function
     public V8Value setInterval(V8Value... v8ValueArgs) throws JavetException {
         V8Value v8ValueResult = null;
         long delay = TimersConstants.DEFAULT_DELAY;
@@ -85,7 +106,6 @@ public class TimersPromisesModule extends BaseJNModule {
         return timersPromisesInterval.toV8Value();
     }
 
-    @V8Function
     public V8ValuePromise setTimeout(V8Value... v8ValueArgs) throws JavetException {
         V8Value v8ValueResult = null;
         long delay = TimersConstants.DEFAULT_DELAY;

@@ -21,17 +21,35 @@ import com.caoccao.javet.javenode.modules.console.ConsoleModule;
 import com.caoccao.javet.javenode.modules.timers.TimersModule;
 import com.caoccao.javet.javenode.modules.timers.TimersPromisesModule;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public final class JNModuleType {
-    public static final JNModuleType CONSOLE = new JNModuleType(ConsoleModule.NAME, ConsoleModule.class);
-    public static final JNModuleType TIMERS = new JNModuleType(TimersModule.NAME, TimersModule.class);
-    public static final JNModuleType TIMERS_PROMISES = new JNModuleType(TimersPromisesModule.NAME, TimersPromisesModule.class);
+    public static final JNModuleType CONSOLE = new JNModuleType(ConsoleModule.NAME, ConsoleModule.class,
+            "assert", "clear", "count", "countReset", "debug",
+            "error", "info", "log", "time", "timeEnd",
+            "timeLog", "trace", "warn");
+    public static final JNModuleType TIMERS = new JNModuleType(TimersModule.NAME, TimersModule.class,
+            "clearImmediate", "clearInterval", "clearTimeout",
+            "setImmediate", "setInterval", "setTimeout");
+    public static final JNModuleType TIMERS_PROMISES = new JNModuleType(
+            TimersPromisesModule.NAME, TimersPromisesModule.class,
+            "setImmediate", "setInterval", "setTimeout");
+    private final List<String> identifiers;
+    private final Class<? extends IJNModule> moduleClass;
+    private final String name;
 
-    private Class<? extends IJNModule> moduleClass;
-    private String name;
-
-    public JNModuleType(String name, Class<? extends IJNModule> moduleClass) {
+    public JNModuleType(String name, Class<? extends IJNModule> moduleClass, String... identifiers) {
         this.moduleClass = moduleClass;
         this.name = name;
+        List<String> tempIdentifiers = new ArrayList<>();
+        Collections.addAll(tempIdentifiers, identifiers);
+        this.identifiers = Collections.unmodifiableList(tempIdentifiers);
+    }
+
+    public List<String> getIdentifiers() {
+        return identifiers;
     }
 
     public Class<? extends IJNModule> getModuleClass() {
