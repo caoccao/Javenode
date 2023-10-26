@@ -98,7 +98,7 @@ public class TimersPromisesInterval extends BaseJNFunction {
     }
 
     @Override
-    public void close() throws JavetException {
+    public void close() {
         if (!isClosed()) {
             active.set(false);
             JavetResourceUtils.safeClose(v8Value);

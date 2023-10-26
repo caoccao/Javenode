@@ -34,18 +34,17 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public abstract class BaseJNModule implements IJNModule {
+public abstract class BaseJNModule extends BaseJNCallable implements IJNModule {
     protected final ReadWriteLock readWriteLock;
     private final JNEventLoop eventLoop;
     private final Map<Integer, IJNFunction> functionMap;
     protected volatile boolean closed;
-    protected JavetCallbackContext[] javetCallbackContexts;
 
     public BaseJNModule(JNEventLoop eventLoop) {
+        super();
         closed = false;
         this.eventLoop = Objects.requireNonNull(eventLoop);
         functionMap = new TreeMap<>();
-        javetCallbackContexts = null;
         readWriteLock = new ReentrantReadWriteLock();
     }
 
@@ -59,7 +58,7 @@ public abstract class BaseJNModule implements IJNModule {
                     JavetResourceUtils.safeClose(iJNFunction);
                     functionMap.remove(iJNFunction.getReferenceId());
                 }
-                javetCallbackContexts = null;
+                super.close();
             } finally {
                 writeLock.unlock();
                 closed = true;

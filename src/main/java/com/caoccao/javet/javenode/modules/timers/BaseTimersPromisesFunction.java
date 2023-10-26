@@ -62,7 +62,7 @@ public abstract class BaseTimersPromisesFunction extends BaseJNFunction {
     }
 
     @Override
-    public void close() throws JavetException {
+    public void close() {
         if (!isClosed()) {
             cancel();
             JavetResourceUtils.safeClose(v8Value);
