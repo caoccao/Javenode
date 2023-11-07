@@ -21,15 +21,21 @@ object Config {
         const val JAVET = "com.caoccao.javet:javet:${Versions.JAVET}"
         const val JAVET_LINUX_ARM64 = "com.caoccao.javet:javet-linux-arm64:${Versions.JAVET}"
         const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
+
+        // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
         const val JUNIT_JUPITER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT_JUPITER}"
+
+        // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
         const val JUNIT_JUPITER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT_JUPITER}"
+
+        // https://mvnrepository.com/artifact/io.vertx/vertx-core
         const val VERTX = "io.vertx:vertx-core:${Versions.VERTX}"
     }
 
     object Versions {
         const val JAVET = "3.0.1"
-        const val JUNIT_JUPITER = "5.10.0"
-        const val VERTX = "4.1.3"
+        const val JUNIT_JUPITER = "5.10.1"
+        const val VERTX = "4.4.6"
     }
 }
 
