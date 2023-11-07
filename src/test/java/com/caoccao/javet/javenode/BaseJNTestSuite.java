@@ -40,6 +40,6 @@ public abstract class BaseJNTestSuite {
         v8Runtime = V8Host.getV8Instance().createV8Runtime();
         eventLoop = new JNEventLoop(v8Runtime);
         eventLoop.setAwaitTimeout(5).setAwaitTimeUnit(TimeUnit.SECONDS);
-        eventLoop.loadStaticModules(JNModuleType.CONSOLE);
+        eventLoop.loadStaticModules(JNModuleType.Console);
     }
 }

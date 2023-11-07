@@ -120,7 +120,7 @@ public class TimersModule extends BaseJNModule implements IJavetDirectCallable {
 
     @Override
     public JNModuleType getType() {
-        return JNModuleType.TIMERS;
+        return JNModuleType.Timers;
     }
 
     public V8Value setImmediate(V8Value... v8ValueArgs) throws JavetException {

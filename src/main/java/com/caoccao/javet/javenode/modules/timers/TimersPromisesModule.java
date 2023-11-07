@@ -72,7 +72,7 @@ public class TimersPromisesModule extends BaseJNModule implements IJavetDirectCa
 
     @Override
     public JNModuleType getType() {
-        return JNModuleType.TIMERS_PROMISES;
+        return JNModuleType.TimersPromises;
     }
 
     public V8ValuePromise setImmediate(V8Value... v8ValueArgs) throws JavetException {

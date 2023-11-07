@@ -26,8 +26,8 @@ public class TutorialTimersPromisesTimeout {
     public static void main(String[] args) throws JavetException, InterruptedException {
         try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
              JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-            eventLoop.loadStaticModules(JNModuleType.CONSOLE);
-            eventLoop.registerDynamicModules(JNModuleType.TIMERS_PROMISES);
+            eventLoop.loadStaticModules(JNModuleType.Console);
+            eventLoop.registerDynamicModules(JNModuleType.TimersPromises);
             v8Runtime.getExecutor(
                     "import { setTimeout } from 'timers/promises';\n" +
                             "const a = [];\n" +

@@ -295,7 +295,7 @@ public class ConsoleModule extends BaseJNModule implements IJavetDirectCallable 
 
     @Override
     public JNModuleType getType() {
-        return JNModuleType.CONSOLE;
+        return JNModuleType.Console;
     }
 
     @Override

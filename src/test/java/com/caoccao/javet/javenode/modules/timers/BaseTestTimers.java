@@ -36,7 +36,7 @@ public class BaseTestTimers extends BaseJNTestSuite {
     @Override
     public void beforeEach() throws JavetException {
         super.beforeEach();
-        assertEquals(1, eventLoop.loadStaticModules(JNModuleType.TIMERS));
+        assertEquals(1, eventLoop.loadStaticModules(JNModuleType.Timers));
         originalDefaultDelay = TimersConstants.DEFAULT_DELAY;
         TimersConstants.DEFAULT_DELAY = 100;
     }

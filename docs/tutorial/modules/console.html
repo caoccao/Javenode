@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Times and Times Promises" href="times.html" /><link rel="prev" title="Modules" href="index.html" />
 
     <link rel="shortcut icon" href="../../_static/logo.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>Console - Javenode 0.2.0 documentation</title>
+        <title>Console - Javenode 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Javenode 0.2.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">Javenode 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -150,7 +150,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Javenode 0.2.0 documentation</span>
+  <span class="sidebar-brand-text">Javenode 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -229,7 +229,7 @@
 <span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">JavetException</span><span class="p">,</span><span class="w"> </span><span class="n">InterruptedException</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">V8Runtime</span><span class="w"> </span><span class="n">v8Runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">V8Host</span><span class="p">.</span><span class="na">getV8Instance</span><span class="p">().</span><span class="na">createV8Runtime</span><span class="p">();</span>
 <span class="w">             </span><span class="n">JNEventLoop</span><span class="w"> </span><span class="n">eventLoop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JNEventLoop</span><span class="p">(</span><span class="n">v8Runtime</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">eventLoop</span><span class="p">.</span><span class="na">loadStaticModules</span><span class="p">(</span><span class="n">JNModuleType</span><span class="p">.</span><span class="na">CONSOLE</span><span class="p">);</span>
+<span class="w">            </span><span class="n">eventLoop</span><span class="p">.</span><span class="na">loadStaticModules</span><span class="p">(</span><span class="n">JNModuleType</span><span class="p">.</span><span class="na">Console</span><span class="p">);</span>
 <span class="w">            </span><span class="n">testLogging</span><span class="p">(</span><span class="n">v8Runtime</span><span class="p">);</span>
 <span class="w">            </span><span class="n">testTime</span><span class="p">(</span><span class="n">v8Runtime</span><span class="p">,</span><span class="w"> </span><span class="n">eventLoop</span><span class="p">);</span>
 <span class="w">            </span><span class="n">testCount</span><span class="p">(</span><span class="n">v8Runtime</span><span class="p">,</span><span class="w"> </span><span class="n">eventLoop</span><span class="p">);</span>
@@ -356,7 +356,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=184a5140"></script>
+</div><script src="../../_static/documentation_options.js?v=3419d779"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

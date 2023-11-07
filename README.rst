@@ -78,7 +78,7 @@ Hello Javenode (Static Import)
 
     try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
          JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-        eventLoop.loadStaticModules(JNModuleType.CONSOLE, JNModuleType.TIMERS);
+        eventLoop.loadStaticModules(JNModuleType.Console, JNModuleType.Timers);
         v8Runtime.getExecutor("const a = [];\n" +
                 "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
         eventLoop.await();
@@ -92,8 +92,8 @@ Hello Javenode (Dynamic Import)
 
     try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
          JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-        eventLoop.loadStaticModules(JNModuleType.CONSOLE);
-        eventLoop.registerDynamicModules(JNModuleType.TIMERS_PROMISES);
+        eventLoop.loadStaticModules(JNModuleType.Console);
+        eventLoop.registerDynamicModules(JNModuleType.TimersPromises);
         v8Runtime.getExecutor(
                 "import { setTimeout } from 'timers/promises';\n" +
                         "const a = [];\n" +
