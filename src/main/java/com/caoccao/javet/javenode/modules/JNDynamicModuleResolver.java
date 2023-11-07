@@ -18,8 +18,8 @@ package com.caoccao.javet.javenode.modules;
 
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interfaces.IJavetClosable;
-import com.caoccao.javet.interfaces.IV8ModuleResolver;
 import com.caoccao.javet.interop.V8Runtime;
+import com.caoccao.javet.interop.callback.IV8ModuleResolver;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.interfaces.IJNModule;

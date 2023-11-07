@@ -27,7 +27,7 @@ object Config {
     }
 
     object Versions {
-        const val JAVET = "3.0.0"
+        const val JAVET = "3.0.1"
         const val JUNIT_JUPITER = "5.10.0"
         const val VERTX = "4.1.3"
     }
