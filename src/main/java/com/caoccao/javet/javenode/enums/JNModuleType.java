@@ -24,15 +24,15 @@ import com.caoccao.javet.javenode.modules.timers.TimersPromisesModule;
 
 import java.util.function.Function;
 
-public enum JNModuleType {
-    Console(ConsoleModule.NAME, ConsoleModule::new),
-    Timers(TimersModule.NAME, TimersModule::new),
-    TimersPromises(TimersPromisesModule.NAME, TimersPromisesModule::new);
+public final class JNModuleType {
+    public static final JNModuleType Console = new JNModuleType(ConsoleModule.NAME, ConsoleModule::new);
+    public static final JNModuleType Timers = new JNModuleType(TimersModule.NAME, TimersModule::new);
+    public static final JNModuleType TimersPromises = new JNModuleType(TimersPromisesModule.NAME, TimersPromisesModule::new);
 
     private final Function<JNEventLoop, IJNModule> moduleConstructor;
     private final String name;
 
-    JNModuleType(String name, Function<JNEventLoop, IJNModule> moduleConstructor) {
+    public JNModuleType(String name, Function<JNEventLoop, IJNModule> moduleConstructor) {
         this.moduleConstructor = moduleConstructor;
         this.name = name;
     }

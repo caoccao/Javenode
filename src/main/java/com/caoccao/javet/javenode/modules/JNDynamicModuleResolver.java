@@ -34,11 +34,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public final class JNDynamicModuleResolver implements IV8ModuleResolver, IJavetClosable {
-    private static final String DUMMY_VAR_NAME = "dummy";
     private final Map<String, DynamicModule> dynamicModuleMap;
     private final JNEventLoop eventLoop;
     private final ReadWriteLock readWriteLock;
-    private boolean closed;
+    private volatile boolean closed;
 
     public JNDynamicModuleResolver(JNEventLoop eventLoop) {
         closed = false;
@@ -59,7 +58,10 @@ public final class JNDynamicModuleResolver implements IV8ModuleResolver, IJavetC
                 if (dynamicModule.jnModule != null && dynamicModule.bindingObject != null) {
                     dynamicModule.jnModule.unbind(dynamicModule.bindingObject);
                 }
-                JavetResourceUtils.safeClose(dynamicModule.jnModule, dynamicModule.bindingObject, dynamicModule.v8Module);
+                JavetResourceUtils.safeClose(
+                        dynamicModule.jnModule,
+                        dynamicModule.bindingObject,
+                        dynamicModule.v8Module);
             }
             dynamicModuleMap.clear();
         } finally {
