@@ -28,7 +28,6 @@ import com.caoccao.javet.utils.JavetResourceUtils;
 import com.caoccao.javet.utils.SimpleMap;
 import io.vertx.core.Vertx;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -205,9 +204,7 @@ public class JNEventLoop implements IJavetClosable {
                         continue;
                     }
                     try {
-                        Class<? extends IJNModule> moduleClass = jnModuleType.getModuleClass();
-                        Constructor constructor = moduleClass.getConstructor(getClass());
-                        IJNModule iJNModule = (IJNModule) constructor.newInstance(this);
+                        IJNModule iJNModule = jnModuleType.getModuleConstructor().apply(this);
                         iJNModule.bind();
                         staticModuleMap.put(moduleName, iJNModule);
                         ++loadedModuleCount;

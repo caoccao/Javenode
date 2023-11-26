@@ -2,6 +2,12 @@
 Release Notes
 =============
 
+0.3.0
+-----
+
+* Upgraded Javet to v3.0.2
+* Removed all reflection calls to improve performance
+
 0.2.0
 -----
 

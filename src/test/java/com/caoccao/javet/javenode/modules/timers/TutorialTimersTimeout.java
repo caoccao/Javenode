@@ -26,7 +26,7 @@ public class TutorialTimersTimeout {
     public static void main(String[] args) throws JavetException, InterruptedException {
         try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
              JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-            eventLoop.loadStaticModules(JNModuleType.CONSOLE, JNModuleType.TIMERS);
+            eventLoop.loadStaticModules(JNModuleType.Console, JNModuleType.Timers);
             v8Runtime.getExecutor("const a = [];\n" +
                     "setTimeout(() => a.push('Hello Javenode'), 10);").executeVoid();
             eventLoop.await();

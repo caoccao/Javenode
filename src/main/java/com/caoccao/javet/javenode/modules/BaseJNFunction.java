@@ -29,12 +29,13 @@ import com.caoccao.javet.values.reference.V8ValueObject;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class BaseJNFunction implements IJNFunction {
+public abstract class BaseJNFunction extends BaseJNCallable implements IJNFunction {
     protected final static AtomicInteger GLOBAL_REFERENCE_ID = new AtomicInteger(0);
     private final IJNModule parentModule;
     protected int referenceId;
 
     public BaseJNFunction(IJNModule parentModule) {
+        super();
         this.parentModule = Objects.requireNonNull(parentModule);
         referenceId = GLOBAL_REFERENCE_ID.incrementAndGet();
         parentModule.putFunction(this);

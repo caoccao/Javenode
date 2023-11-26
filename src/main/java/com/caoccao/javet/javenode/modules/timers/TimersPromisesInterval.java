@@ -16,12 +16,11 @@
 
 package com.caoccao.javet.javenode.modules.timers;
 
-import com.caoccao.javet.annotations.V8Function;
-import com.caoccao.javet.annotations.V8Property;
 import com.caoccao.javet.enums.V8ValueSymbolType;
 import com.caoccao.javet.exceptions.JavetException;
-import com.caoccao.javet.interfaces.IJavetAnonymous;
+import com.caoccao.javet.interop.callback.IJavetDirectCallable;
 import com.caoccao.javet.interop.callback.JavetCallbackContext;
+import com.caoccao.javet.interop.callback.JavetCallbackType;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.javenode.modules.BaseJNFunction;
 import com.caoccao.javet.utils.JavetResourceUtils;
@@ -33,8 +32,10 @@ import com.caoccao.javet.values.reference.builtin.V8ValueBuiltInPromise;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TimersPromisesInterval extends BaseJNFunction {
-    protected static final String FUNCTION_GET = "get";
+public class TimersPromisesInterval extends BaseJNFunction implements IJavetDirectCallable {
+    protected static final String FUNCTION_GET_ASYNC_ITERATOR = "getAsyncIterator";
+    protected static final String FUNCTION_NEXT = "next";
+    protected static final String PROPERTY_ASYNC_ITERATOR = "asyncIterator";
     protected static final String PROPERTY_DONE = "done";
     protected static final String PROPERTY_VALUE = "value";
     protected final AtomicBoolean active;
@@ -54,56 +55,83 @@ public class TimersPromisesInterval extends BaseJNFunction {
         this.v8Value = v8Value == null ? getV8Runtime().createV8ValueNull() : v8Value.toClone();
     }
 
-    @V8Property(name = "asyncIterator", symbolType = V8ValueSymbolType.BuiltIn)
-    public V8Value asyncIterator() throws JavetException, NoSuchMethodException {
+    public V8Value asyncIterator() throws JavetException {
         if (isClosed()) {
             return getV8Runtime().createV8ValueUndefined();
         }
-        IJavetAnonymous anonymous = new IJavetAnonymous() {
-            public V8ValueObject get() throws JavetException {
-                V8ValueObject v8ValueObjectAsyncGenerator = getV8Runtime().createV8ValueObject();
-                v8ValueObjectAsyncGenerator.bind(
-                        new IJavetAnonymous() {
-                            @V8Function
-                            public V8ValuePromise next() throws JavetException {
-                                boolean actualResolve = resolve;
-                                if (actualResolve) {
-                                    try {
-                                        TimeUnit.MILLISECONDS.sleep(delay);
-                                    } catch (InterruptedException e) {
-                                        actualResolve = false;
-                                    }
-                                }
-                                try (V8ValueObject v8ValueObjectResult = getV8Runtime().createV8ValueObject();
-                                     V8ValueBuiltInPromise v8ValueBuiltInPromise =
-                                             getV8Runtime().getGlobalObject().getBuiltInPromise();
-                                     V8Value actualV8Value = v8Value.toClone()) {
-                                    v8ValueObjectResult.set(PROPERTY_VALUE, actualV8Value);
-                                    v8ValueObjectResult.set(PROPERTY_DONE, false);
-                                    if (actualResolve) {
-                                        return v8ValueBuiltInPromise.resolve(v8ValueObjectResult);
-                                    } else {
-                                        return v8ValueBuiltInPromise.reject(v8ValueObjectResult);
-                                    }
-                                }
-                            }
-                        }
-                );
-                return v8ValueObjectAsyncGenerator;
-            }
-        };
-        JavetCallbackContext javetCallbackContext = new JavetCallbackContext(
-                FUNCTION_GET, anonymous, anonymous.getClass().getMethod(FUNCTION_GET));
-        return getV8Runtime().createV8ValueFunction(javetCallbackContext);
+        return getV8Runtime().createV8ValueFunction(new JavetCallbackContext(
+                FUNCTION_GET_ASYNC_ITERATOR,
+                this, JavetCallbackType.DirectCallNoThisAndResult,
+                (IJavetDirectCallable.NoThisAndResult<Exception>) this::getAsyncIterator));
     }
 
     @Override
-    public void close() throws JavetException {
+    public void close() {
         if (!isClosed()) {
             active.set(false);
             JavetResourceUtils.safeClose(v8Value);
             v8Value = null;
         }
+    }
+
+    protected V8ValueObject getAsyncIterator(V8Value... v8Values) throws JavetException {
+        V8ValueObject v8ValueObjectAsyncGenerator = getV8Runtime().createV8ValueObject();
+        v8ValueObjectAsyncGenerator.bind(
+                new IJavetDirectCallable() {
+                    private JavetCallbackContext[] javetCallbackContexts;
+
+                    @Override
+                    public JavetCallbackContext[] getCallbackContexts() {
+                        if (javetCallbackContexts == null) {
+                            javetCallbackContexts = new JavetCallbackContext[]{
+                                    new JavetCallbackContext(
+                                            FUNCTION_NEXT,
+                                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::next),
+                            };
+                        }
+                        return javetCallbackContexts;
+                    }
+
+                    public V8ValuePromise next(V8Value... v8Values) throws JavetException {
+                        boolean actualResolve = resolve;
+                        if (actualResolve) {
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(delay);
+                            } catch (InterruptedException e) {
+                                actualResolve = false;
+                            }
+                        }
+                        try (V8ValueObject v8ValueObjectResult = getV8Runtime().createV8ValueObject();
+                             V8ValueBuiltInPromise v8ValueBuiltInPromise =
+                                     getV8Runtime().getGlobalObject().getBuiltInPromise();
+                             V8Value actualV8Value = v8Value.toClone()) {
+                            v8ValueObjectResult.set(PROPERTY_VALUE, actualV8Value);
+                            v8ValueObjectResult.set(PROPERTY_DONE, false);
+                            if (actualResolve) {
+                                return v8ValueBuiltInPromise.resolve(v8ValueObjectResult);
+                            } else {
+                                return v8ValueBuiltInPromise.reject(v8ValueObjectResult);
+                            }
+                        }
+                    }
+                }
+        );
+        return v8ValueObjectAsyncGenerator;
+    }
+
+    @Override
+    public JavetCallbackContext[] getCallbackContexts() {
+        if (javetCallbackContexts == null) {
+            javetCallbackContexts = new JavetCallbackContext[]{
+                    new JavetCallbackContext(
+                            PROPERTY_ASYNC_ITERATOR,
+                            V8ValueSymbolType.BuiltIn,
+                            this, JavetCallbackType.DirectCallGetterAndNoThis,
+                            (IJavetDirectCallable.GetterAndNoThis<Exception>) this::asyncIterator),
+            };
+        }
+        return javetCallbackContexts;
     }
 
     @Override

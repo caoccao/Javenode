@@ -16,26 +16,29 @@
 
 package com.caoccao.javet.javenode.enums;
 
+import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.javenode.modules.console.ConsoleModule;
 import com.caoccao.javet.javenode.modules.timers.TimersModule;
 import com.caoccao.javet.javenode.modules.timers.TimersPromisesModule;
 
+import java.util.function.Function;
+
 public final class JNModuleType {
-    public static final JNModuleType CONSOLE = new JNModuleType(ConsoleModule.NAME, ConsoleModule.class);
-    public static final JNModuleType TIMERS = new JNModuleType(TimersModule.NAME, TimersModule.class);
-    public static final JNModuleType TIMERS_PROMISES = new JNModuleType(TimersPromisesModule.NAME, TimersPromisesModule.class);
+    public static final JNModuleType Console = new JNModuleType(ConsoleModule.NAME, ConsoleModule::new);
+    public static final JNModuleType Timers = new JNModuleType(TimersModule.NAME, TimersModule::new);
+    public static final JNModuleType TimersPromises = new JNModuleType(TimersPromisesModule.NAME, TimersPromisesModule::new);
 
-    private Class<? extends IJNModule> moduleClass;
-    private String name;
+    private final Function<JNEventLoop, IJNModule> moduleConstructor;
+    private final String name;
 
-    public JNModuleType(String name, Class<? extends IJNModule> moduleClass) {
-        this.moduleClass = moduleClass;
+    public JNModuleType(String name, Function<JNEventLoop, IJNModule> moduleConstructor) {
+        this.moduleConstructor = moduleConstructor;
         this.name = name;
     }
 
-    public Class<? extends IJNModule> getModuleClass() {
-        return moduleClass;
+    public Function<JNEventLoop, IJNModule> getModuleConstructor() {
+        return moduleConstructor;
     }
 
     public String getName() {

@@ -16,15 +16,16 @@
 
 package com.caoccao.javet.javenode.modules.timers;
 
-import com.caoccao.javet.annotations.V8Function;
-import com.caoccao.javet.annotations.V8Property;
 import com.caoccao.javet.enums.V8ValueSymbolType;
 import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.interop.callback.IJavetDirectCallable;
+import com.caoccao.javet.interop.callback.JavetCallbackContext;
+import com.caoccao.javet.interop.callback.JavetCallbackType;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.reference.V8ValueFunction;
 
-public class TimersTimeout extends BaseTimersFunction {
+public class TimersTimeout extends BaseTimersFunction implements IJavetDirectCallable {
 
     public TimersTimeout(
             IJNModule parentModule,
@@ -35,34 +36,46 @@ public class TimersTimeout extends BaseTimersFunction {
         super(parentModule, recurrent, v8ValueFunctionCallback, delay, v8ValueArgs);
     }
 
-    @V8Property(name = "toPrimitive", symbolType = V8ValueSymbolType.BuiltIn)
-    public V8ValueFunction getReferenceIdFunction() throws JavetException {
+    @Override
+    public JavetCallbackContext[] getCallbackContexts() {
+        if (javetCallbackContexts == null) {
+            javetCallbackContexts = new JavetCallbackContext[]{
+                    new JavetCallbackContext(
+                            "hasRef",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::hasRef),
+                    new JavetCallbackContext(
+                            "toPrimitive",
+                            V8ValueSymbolType.BuiltIn,
+                            this, JavetCallbackType.DirectCallGetterAndNoThis,
+                            (IJavetDirectCallable.GetterAndNoThis<Exception>) this::getReferenceIdFunction),
+                    new JavetCallbackContext(
+                            "ref",
+                            this, JavetCallbackType.DirectCallThisAndResult,
+                            (IJavetDirectCallable.ThisAndResult<Exception>) this::ref),
+                    new JavetCallbackContext(
+                            "unref",
+                            this, JavetCallbackType.DirectCallThisAndResult,
+                            (IJavetDirectCallable.ThisAndResult<Exception>) this::unref),
+                    new JavetCallbackContext(
+                            "refresh",
+                            this, JavetCallbackType.DirectCallThisAndResult,
+                            (IJavetDirectCallable.ThisAndResult<Exception>) this::refresh),
+            };
+        }
+        return javetCallbackContexts;
+    }
+
+    public V8ValueFunction getReferenceIdFunction(V8Value... v8Values) throws JavetException {
         StringBuilder stringBuilder = new StringBuilder("() => ").append(getReferenceId());
         return getEventLoop().getV8Runtime().createV8ValueFunction(stringBuilder.toString());
     }
 
-    @V8Function
-    @Override
-    public boolean hasRef() {
-        return super.hasRef();
-    }
-
-    @V8Function(thisObjectRequired = true)
-    public V8Value ref(V8Value thisObject) {
-        return super.ref(thisObject);
-    }
-
-    @V8Function(thisObjectRequired = true)
-    public V8Value refresh(V8Value thisObject) {
+    public V8Value refresh(V8Value thisObject, V8Value... v8Values) {
         if (hasRef()) {
-            unref(thisObject);
+            cancel();
             run();
         }
         return thisObject;
-    }
-
-    @V8Function(thisObjectRequired = true)
-    public V8Value unref(V8Value thisObject) {
-        return super.unref(thisObject);
     }
 }

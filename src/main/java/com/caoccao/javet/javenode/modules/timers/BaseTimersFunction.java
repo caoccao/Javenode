@@ -61,7 +61,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
     }
 
     @Override
-    public void close() throws JavetException {
+    public void close() {
         if (!isClosed()) {
             cancel();
             JavetResourceUtils.safeClose(v8ValueFunctionCallback);
@@ -75,12 +75,16 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
         return active.get();
     }
 
+    public V8Value hasRef(V8Value... v8Values) throws JavetException {
+        return getV8Runtime().createV8ValueBoolean(hasRef());
+    }
+
     @Override
     public boolean isClosed() {
         return JavetResourceUtils.isClosed(v8ValueFunctionCallback);
     }
 
-    public V8Value ref(V8Value thisObject) {
+    public V8Value ref(V8Value thisObject, V8Value... v8Values) {
         return thisObject;
     }
 
@@ -114,7 +118,7 @@ public abstract class BaseTimersFunction extends BaseJNFunction {
         }
     }
 
-    public V8Value unref(V8Value thisObject) {
+    public V8Value unref(V8Value thisObject, V8Value... v8Values) {
         cancel();
         return thisObject;
     }

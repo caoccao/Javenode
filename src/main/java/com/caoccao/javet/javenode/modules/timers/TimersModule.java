@@ -16,8 +16,10 @@
 
 package com.caoccao.javet.javenode.modules.timers;
 
-import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.interop.callback.IJavetDirectCallable;
+import com.caoccao.javet.interop.callback.JavetCallbackContext;
+import com.caoccao.javet.interop.callback.JavetCallbackType;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import com.caoccao.javet.javenode.modules.BaseJNModule;
@@ -28,7 +30,7 @@ import com.caoccao.javet.values.reference.V8ValueObject;
 
 import java.text.MessageFormat;
 
-public class TimersModule extends BaseJNModule {
+public class TimersModule extends BaseJNModule implements IJavetDirectCallable {
     public static final String NAME = "timers";
 
     public TimersModule(JNEventLoop eventLoop) {
@@ -47,7 +49,6 @@ public class TimersModule extends BaseJNModule {
         return getEventLoop().getV8Runtime().createV8ValueUndefined();
     }
 
-    @V8Function
     public V8Value clearImmediate(V8Value... v8ValueArgs) throws JavetException {
         if (v8ValueArgs == null || v8ValueArgs.length != 1) {
             throw new IllegalArgumentException("clearImmediate() takes 1 argument");
@@ -55,7 +56,6 @@ public class TimersModule extends BaseJNModule {
         return cancel(v8ValueArgs[0], "immediate");
     }
 
-    @V8Function
     public V8Value clearInterval(V8Value... v8ValueArgs) throws JavetException {
         if (v8ValueArgs == null || v8ValueArgs.length != 1) {
             throw new IllegalArgumentException("clearInterval() takes 1 argument");
@@ -63,7 +63,6 @@ public class TimersModule extends BaseJNModule {
         return cancel(v8ValueArgs[0], "interval");
     }
 
-    @V8Function
     public V8Value clearTimeout(V8Value... v8ValueArgs) throws JavetException {
         if (v8ValueArgs == null || v8ValueArgs.length != 1) {
             throw new IllegalArgumentException("clearTimeout() takes 1 argument");
@@ -87,11 +86,43 @@ public class TimersModule extends BaseJNModule {
     }
 
     @Override
-    public JNModuleType getType() {
-        return JNModuleType.TIMERS;
+    public JavetCallbackContext[] getCallbackContexts() {
+        if (javetCallbackContexts == null) {
+            javetCallbackContexts = new JavetCallbackContext[]{
+                    new JavetCallbackContext(
+                            "clearImmediate",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::clearImmediate),
+                    new JavetCallbackContext(
+                            "clearInterval",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::clearInterval),
+                    new JavetCallbackContext(
+                            "clearTimeout",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::clearTimeout),
+                    new JavetCallbackContext(
+                            "setImmediate",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::setImmediate),
+                    new JavetCallbackContext(
+                            "setInterval",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::setInterval),
+                    new JavetCallbackContext(
+                            "setTimeout",
+                            this, JavetCallbackType.DirectCallNoThisAndResult,
+                            (IJavetDirectCallable.NoThisAndResult<Exception>) this::setTimeout),
+            };
+        }
+        return javetCallbackContexts;
     }
 
-    @V8Function
+    @Override
+    public JNModuleType getType() {
+        return JNModuleType.Timers;
+    }
+
     public V8Value setImmediate(V8Value... v8ValueArgs) throws JavetException {
         if (v8ValueArgs == null || v8ValueArgs.length == 0) {
             throw new IllegalArgumentException("setImmediate() takes a least 1 argument");
@@ -104,7 +135,6 @@ public class TimersModule extends BaseJNModule {
         return timersImmediate.toV8Value();
     }
 
-    @V8Function
     public V8Value setInterval(V8Value... v8ValueArgs) throws JavetException {
         if (v8ValueArgs == null || v8ValueArgs.length == 0) {
             throw new IllegalArgumentException("setInterval() takes a least 1 argument");
@@ -119,7 +149,6 @@ public class TimersModule extends BaseJNModule {
         return timersTimeout.toV8Value();
     }
 
-    @V8Function
     public V8Value setTimeout(V8Value... v8ValueArgs) throws JavetException {
         if (v8ValueArgs == null || v8ValueArgs.length == 0) {
             throw new IllegalArgumentException("setTimeout() takes a least 1 argument");

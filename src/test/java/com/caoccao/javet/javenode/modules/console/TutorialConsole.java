@@ -28,7 +28,7 @@ public class TutorialConsole {
     public static void main(String[] args) throws JavetException, InterruptedException {
         try (V8Runtime v8Runtime = V8Host.getV8Instance().createV8Runtime();
              JNEventLoop eventLoop = new JNEventLoop(v8Runtime)) {
-            eventLoop.loadStaticModules(JNModuleType.CONSOLE);
+            eventLoop.loadStaticModules(JNModuleType.Console);
             testLogging(v8Runtime);
             testTime(v8Runtime, eventLoop);
             testCount(v8Runtime, eventLoop);
