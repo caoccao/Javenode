@@ -17,24 +17,55 @@
 import org.gradle.internal.os.OperatingSystem
 
 object Config {
+    const val GROUP_ID = "com.caoccao.javet"
+    const val NAME = "Javenode"
+    const val VERSION = Versions.JAVENODE
+    const val URL = "https://github.com/caoccao/Javenode"
+
+    object Pom {
+        const val ARTIFACT_ID = "javenode"
+        const val DESCRIPTION =
+            "Javenode is Java + V8 + Node.js. It is a Node.js simulator with Java in V8."
+
+        object Developer {
+            const val ID = "caoccao"
+            const val EMAIL = "sjtucaocao@gmail.com"
+            const val NAME = "Sam Cao"
+            const val ORGANIZATION = "caoccao.com"
+            const val ORGANIZATION_URL = "https://www.caoccao.com"
+        }
+
+        object License {
+            const val NAME = "APACHE LICENSE, VERSION 2.0"
+            const val URL = "https://github.com/caoccao/Javenode/blob/main/LICENSE"
+        }
+
+        object Scm {
+            const val CONNECTION = "scm:git:git://github.com/Javenode.git"
+            const val DEVELOPER_CONNECTION = "scm:git:ssh://github.com/Javenode.git"
+        }
+    }
+
     object Projects {
         const val JAVET = "com.caoccao.javet:javet:${Versions.JAVET}"
         const val JAVET_LINUX_ARM64 = "com.caoccao.javet:javet-linux-arm64:${Versions.JAVET}"
         const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
 
         // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-        const val JUNIT_JUPITER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT_JUPITER}"
+        const val JUNIT_JUPITER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT}"
 
         // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
-        const val JUNIT_JUPITER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT_JUPITER}"
+        const val JUNIT_JUPITER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT}"
 
         // https://mvnrepository.com/artifact/io.vertx/vertx-core
         const val VERTX = "io.vertx:vertx-core:${Versions.VERTX}"
     }
 
     object Versions {
-        const val JAVET = "3.0.1"
-        const val JUNIT_JUPITER = "5.10.1"
+        const val JAVA_VERSION = "1.8"
+        const val JAVET = "3.0.2"
+        const val JAVENODE = "0.3.0"
+        const val JUNIT = "5.10.1"
         const val VERTX = "4.4.6"
     }
 }
@@ -42,18 +73,25 @@ object Config {
 plugins {
     java
     `java-library`
+    `maven-publish`
 }
 
 repositories {
     mavenCentral()
 }
 
-group = "com.caoccao.javet"
-version = "0.3.0"
-
+group = Config.GROUP_ID
+version = Config.VERSION
 
 repositories {
     mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+    withJavadocJar()
 }
 
 dependencies {
@@ -102,7 +140,54 @@ tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
+publishing {
+    publications {
+        create<MavenPublication>("generatePom") {
+            from(components["java"])
+            pom {
+                artifactId = Config.Pom.ARTIFACT_ID
+                description.set(Config.Pom.DESCRIPTION)
+                groupId = Config.GROUP_ID
+                name.set(Config.NAME)
+                url.set(Config.URL)
+                version = Config.VERSION
+                licenses {
+                    license {
+                        name.set(Config.Pom.License.NAME)
+                        url.set(Config.Pom.License.URL)
+                    }
+                }
+                developers {
+                    developer {
+                        id.set(Config.Pom.Developer.ID)
+                        email.set(Config.Pom.Developer.EMAIL)
+                        name.set(Config.Pom.Developer.NAME)
+                        organization.set(Config.Pom.Developer.ORGANIZATION)
+                        organizationUrl.set(Config.Pom.Developer.ORGANIZATION_URL)
+                    }
+                }
+                scm {
+                    connection.set(Config.Pom.Scm.CONNECTION)
+                    developerConnection.set(Config.Pom.Scm.DEVELOPER_CONNECTION)
+                    tag.set(Config.Versions.JAVENODE)
+                    url.set(Config.URL)
+                }
+                properties.set(
+                    mapOf(
+                        "maven.compiler.source" to Config.Versions.JAVA_VERSION,
+                        "maven.compiler.target" to Config.Versions.JAVA_VERSION,
+                    )
+                )
+            }
+        }
+    }
+}
+
+tasks {
+    withType(Test::class.java) {
+        useJUnitPlatform()
+    }
+    withType<GenerateMavenPom> {
+        destination = file("$buildDir/libs/${Config.Pom.ARTIFACT_ID}-${Config.VERSION}.pom")
+    }
 }

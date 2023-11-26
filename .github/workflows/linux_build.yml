@@ -36,10 +36,12 @@ jobs:
         java-version: 8
 
     - name: Build the artifact
-      run: gradle build test
+      run: gradle build generatePomFileForGeneratePomPublication
 
     - name: Upload the artifact
       uses: actions/upload-artifact@v3
       with:
         name: javenode
-        path: build/libs/javenode*.jar
+        path: |
+          build/libs/*.jar
+          build/libs/*.pom
