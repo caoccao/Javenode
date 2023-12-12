@@ -163,6 +163,11 @@ public class TimersModule extends BaseJNModule implements IJavetDirectCallable {
         return timersTimeout.toV8Value();
     }
 
+    @Override
+    public void unbind() throws JavetException {
+        getV8Runtime().getGlobalObject().delete(NAME);
+    }
+
     protected void validateCallback(V8Value v8ValueCallback) {
         if (!(v8ValueCallback instanceof V8ValueFunction)) {
             throw new IllegalArgumentException("Argument [callback] must be a function");
