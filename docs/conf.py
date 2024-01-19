@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Javenode'
-copyright = '2021-2023. caoccao.com Sam Cao'
+copyright = '2021-2024. caoccao.com Sam Cao'
 author = 'Sam Cao'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.0'
+release = '0.4.0'
 
 
 # -- General configuration ---------------------------------------------------
