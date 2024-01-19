@@ -19,6 +19,7 @@ package com.caoccao.javet.javenode.enums;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.interfaces.IJNModule;
 import com.caoccao.javet.javenode.modules.console.ConsoleModule;
+import com.caoccao.javet.javenode.modules.javet.JavetModule;
 import com.caoccao.javet.javenode.modules.timers.TimersModule;
 import com.caoccao.javet.javenode.modules.timers.TimersPromisesModule;
 
@@ -26,6 +27,7 @@ import java.util.function.Function;
 
 public final class JNModuleType {
     public static final JNModuleType Console = new JNModuleType(ConsoleModule.NAME, ConsoleModule::new);
+    public static final JNModuleType Javet = new JNModuleType(JavetModule.NAME, JavetModule::new);
     public static final JNModuleType Timers = new JNModuleType(TimersModule.NAME, TimersModule::new);
     public static final JNModuleType TimersPromises = new JNModuleType(TimersPromisesModule.NAME, TimersPromisesModule::new);
 
