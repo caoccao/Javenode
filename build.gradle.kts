@@ -47,6 +47,9 @@ object Config {
     }
 
     object Projects {
+        // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy
+        const val BYTE_BUDDY = "net.bytebuddy:byte-buddy:${Versions.BYTE_BUDDY}"
+
         const val JAVET = "com.caoccao.javet:javet:${Versions.JAVET}"
         const val JAVET_LINUX_ARM64 = "com.caoccao.javet:javet-linux-arm64:${Versions.JAVET}"
         const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
@@ -62,6 +65,7 @@ object Config {
     }
 
     object Versions {
+        const val BYTE_BUDDY = "1.14.10"
         const val JAVA_VERSION = "1.8"
         const val JAVET = "3.0.3"
         const val JAVENODE = "0.4.0"
@@ -104,6 +108,7 @@ dependencies {
     } else {
         implementation(Config.Projects.JAVET)
     }
+    implementation(Config.Projects.BYTE_BUDDY)
     implementation(Config.Projects.VERTX)
     testImplementation(Config.Projects.JUNIT_JUPITER_API)
     testRuntimeOnly(Config.Projects.JUNIT_JUPITER_ENGINE)

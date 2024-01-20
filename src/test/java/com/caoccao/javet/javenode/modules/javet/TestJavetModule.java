@@ -16,8 +16,11 @@
 
 package com.caoccao.javet.javenode.modules.javet;
 
+import com.caoccao.javet.annotations.V8Function;
 import com.caoccao.javet.exceptions.JavetException;
+import com.caoccao.javet.interfaces.IJavetAnonymous;
 import com.caoccao.javet.interop.converters.JavetProxyConverter;
+import com.caoccao.javet.interop.proxy.JavetReflectionObjectFactory;
 import com.caoccao.javet.javenode.BaseJNTestSuite;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import org.junit.jupiter.api.Test;
@@ -29,7 +32,22 @@ public class TestJavetModule extends BaseJNTestSuite {
     public void beforeEach() throws JavetException {
         super.beforeEach();
         v8Runtime.setConverter(new JavetProxyConverter());
+        v8Runtime.getConverter().getConfig().setReflectionObjectFactory(JavetReflectionObjectFactory.getInstance());
         eventLoop.loadStaticModules(JNModuleType.Javet);
+    }
+
+    @Test
+    public void testDynamicObject() throws JavetException {
+        IJavetAnonymous anonymous = new IJavetAnonymous() {
+            @V8Function
+            public void test(MockDynamicClass dynamicClass) throws Exception {
+                assertEquals(3, dynamicClass.add(1, 2), "Add should work.");
+                ((AutoCloseable) dynamicClass).close();
+            }
+        };
+        v8Runtime.getGlobalObject().set("a", anonymous);
+        v8Runtime.getExecutor("a.test({ add: (a, b) => a + b });").executeVoid();
+        v8Runtime.getGlobalObject().delete("a");
     }
 
     @Test
@@ -60,6 +78,28 @@ public class TestJavetModule extends BaseJNTestSuite {
     }
 
     @Test
+    public void testStringBuilder() throws JavetException {
+        v8Runtime.getExecutor("let java = javet.package.java").executeVoid();
+        assertEquals(
+                "a1",
+                v8Runtime.getExecutor("let sb = new java.lang.StringBuilder(); sb.append('a').append(1); sb.toString();").executeString());
+        v8Runtime.getExecutor("java = undefined; sb = undefined;").executeVoid();
+    }
+
+    @Test
+    public void testThread() throws JavetException, InterruptedException {
+        Thread thread = v8Runtime.getExecutor(
+                "let java = javet.package.java;" +
+                        "let count = 0;" +
+                        "let thread = new java.lang.Thread(() => { count++; });" +
+                        "thread.start();" +
+                        "thread;").executeObject();
+        thread.join();
+        assertEquals(1, v8Runtime.getExecutor("count").executeInteger());
+        v8Runtime.getExecutor("java = undefined; thread = undefined;").executeVoid();
+    }
+
+    @Test
     public void testV8GC() throws JavetException {
         int initialCallbackContextCount = v8Runtime.getCallbackContextCount();
         v8Runtime.getGlobalObject().set("test", String.class);
@@ -70,5 +110,11 @@ public class TestJavetModule extends BaseJNTestSuite {
         assertEquals(initialCallbackContextCount + 5, v8Runtime.getCallbackContextCount());
         v8Runtime.lowMemoryNotification();
         assertEquals(initialCallbackContextCount, v8Runtime.getCallbackContextCount());
+    }
+
+    public static class MockDynamicClass {
+        public int add(int a, int b) {
+            return 0;
+        }
     }
 }
