@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023. caoccao.com Sam Cao
+ * Copyright (c) 2021-2024. caoccao.com Sam Cao
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,6 +161,11 @@ public class TimersModule extends BaseJNModule implements IJavetDirectCallable {
                 false, (V8ValueFunction) v8ValueCallback, delay, extractArgs(v8ValueArgs, 2));
         timersTimeout.run();
         return timersTimeout.toV8Value();
+    }
+
+    @Override
+    public void unbind() throws JavetException {
+        getV8Runtime().getGlobalObject().delete(NAME);
     }
 
     protected void validateCallback(V8Value v8ValueCallback) {

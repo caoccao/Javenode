@@ -1,5 +1,5 @@
 '''
-  Copyright (c) 2021-2023 caoccao.com Sam Cao
+  Copyright (c) 2021-2024 caoccao.com Sam Cao
   All rights reserved.
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,22 +38,15 @@ class ChangeVersion(object):
       re.compile(r'javenode[\-\w]*:(?P<version>\d+\.\d+\.\d+)["\']{1}'))
     self._update(
       'build.gradle.kts', '\n',
-      re.compile(r'^version = "(?P<version>\d+\.\d+\.\d+)"$'))
+      re.compile(r'JAVENODE = "(?P<version>\d+\.\d+\.\d+)"$'))
     self._update(
       'docs/conf.py', '\n',
       re.compile(r'release\s*=\s*\'(?P<version>\d+\.\d+\.\d+)\'$'))
-    self._update(
-      'pom.xml', '\n',
-      re.compile(r'^  <version>(?P<version>\d+\.\d+\.\d+)</version>$'),
-      re.compile(r'^    <tag>javenode-(?P<version>\d+\.\d+\.\d+)</tag>$'))
 
   def update_javet(self):
     self._update(
       'build.gradle.kts', '\n',
-      re.compile(r'JAVET = "(?P<version>\d+\.\d+\.\d+)"'))
-    self._update(
-      'pom.xml', '\n',
-      re.compile(r'<javet.version>(?P<version>\d+\.\d+\.\d+)</javet.version'))
+      re.compile(r'JAVET = "(?P<version>\d+\.\d+\.\d+)"$'))
 
   def _update(self, relative_file_path: str, line_separator: str, *patterns: list):
     file_path = (self._root_path / relative_file_path).resolve().absolute()
@@ -87,9 +80,9 @@ class ChangeVersion(object):
       logging.info('  Updated.')
 
 def main():
-  change_javenode_version = ChangeVersion('0.3.0')
+  change_javenode_version = ChangeVersion('0.4.0')
   change_javenode_version.update_javenode()
-  change_javet_version = ChangeVersion('3.0.0')
+  change_javet_version = ChangeVersion('3.0.3')
   change_javet_version.update_javet()
   return 0
 
