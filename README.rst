@@ -37,6 +37,7 @@ Major Features
 * Same Modules as Node.js
 * Modules
     * console
+    * javet
     * timers
     * timers/promises
 

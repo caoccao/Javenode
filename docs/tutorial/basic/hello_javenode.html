@@ -167,6 +167,7 @@
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../modules/index.html">Modules</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Modules</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../modules/console.html">Console</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/javet.html">Javet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/times.html">Times and Times Promises</a></li>
 </ul>
 </li>
@@ -175,6 +176,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/modules/index.html">Modules</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Modules</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/modules/console.html">Console</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/modules/javet.html">Javet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/modules/times.html">Times and Times Promises</a></li>
 </ul>
 </li>
@@ -218,7 +220,8 @@
           <section id="hello-javenode">
 <h1>Hello Javenode<a class="headerlink" href="#hello-javenode" title="Link to this heading">#</a></h1>
 <p>Javenode works on top of <a class="reference external" href="https://github.com/caoccao/Javet">Javet</a>, so the tutorial may skip some Javet detail. If you are not familiar with Javet, you may visit the <a class="reference external" href="https://www.caoccao.com/Javet/tutorial/index.html">Javet tutorial</a>.</p>
-<hr class="docutils" />
+<section id="hello-javenode-static-import">
+<h2>Hello Javenode (Static Import)<a class="headerlink" href="#hello-javenode-static-import" title="Link to this heading">#</a></h2>
 <div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">V8Runtime</span><span class="w"> </span><span class="n">v8Runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">V8Host</span><span class="p">.</span><span class="na">getV8Instance</span><span class="p">().</span><span class="na">createV8Runtime</span><span class="p">();</span>
 <span class="w">     </span><span class="n">JNEventLoop</span><span class="w"> </span><span class="n">eventLoop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JNEventLoop</span><span class="p">(</span><span class="n">v8Runtime</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">eventLoop</span><span class="p">.</span><span class="na">loadStaticModules</span><span class="p">(</span><span class="n">JNModuleType</span><span class="p">.</span><span class="na">Console</span><span class="p">,</span><span class="w"> </span><span class="n">JNModuleType</span><span class="p">.</span><span class="na">Timers</span><span class="p">);</span>
@@ -229,6 +232,7 @@
 <span class="p">}</span>
 </pre></div>
 </div>
+</section>
 <section id="hello-javenode-dynamic-import">
 <h2>Hello Javenode (Dynamic Import)<a class="headerlink" href="#hello-javenode-dynamic-import" title="Link to this heading">#</a></h2>
 <div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">V8Runtime</span><span class="w"> </span><span class="n">v8Runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">V8Host</span><span class="p">.</span><span class="na">getV8Instance</span><span class="p">().</span><span class="na">createV8Runtime</span><span class="p">();</span>
@@ -304,6 +308,7 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Hello Javenode</a><ul>
+<li><a class="reference internal" href="#hello-javenode-static-import">Hello Javenode (Static Import)</a></li>
 <li><a class="reference internal" href="#hello-javenode-dynamic-import">Hello Javenode (Dynamic Import)</a></li>
 </ul>
 </li>
