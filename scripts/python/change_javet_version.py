@@ -80,9 +80,9 @@ class ChangeVersion(object):
       logging.info('  Updated.')
 
 def main():
-  change_javenode_version = ChangeVersion('0.5.0')
+  change_javenode_version = ChangeVersion('0.6.0')
   change_javenode_version.update_javenode()
-  change_javet_version = ChangeVersion('3.0.4')
+  change_javet_version = ChangeVersion('3.1.0')
   change_javet_version.update_javet()
   return 0
 
