@@ -2,6 +2,11 @@
 Release Notes
 =============
 
+0.7.0
+-----
+
+* Upgraded Javet to v3.1.2
+
 0.6.0
 -----
 
