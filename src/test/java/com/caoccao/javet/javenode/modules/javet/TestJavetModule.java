@@ -103,11 +103,11 @@ public class TestJavetModule extends BaseJNTestSuite {
     public void testV8GC() throws JavetException {
         int initialCallbackContextCount = v8Runtime.getCallbackContextCount();
         v8Runtime.getGlobalObject().set("test", String.class);
-        assertEquals(initialCallbackContextCount + 6, v8Runtime.getCallbackContextCount());
-        v8Runtime.getGlobalObject().delete("test");
-        assertEquals(initialCallbackContextCount + 6, v8Runtime.getCallbackContextCount());
-        v8Runtime.getExecutor("javet.v8.gc()").executeVoid();
         assertEquals(initialCallbackContextCount + 7, v8Runtime.getCallbackContextCount());
+        v8Runtime.getGlobalObject().delete("test");
+        assertEquals(initialCallbackContextCount + 7, v8Runtime.getCallbackContextCount());
+        v8Runtime.getExecutor("javet.v8.gc()").executeVoid();
+        assertEquals(initialCallbackContextCount + 8, v8Runtime.getCallbackContextCount());
         v8Runtime.lowMemoryNotification();
         assertEquals(initialCallbackContextCount, v8Runtime.getCallbackContextCount());
     }
