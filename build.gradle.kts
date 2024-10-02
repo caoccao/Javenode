@@ -47,12 +47,12 @@ object Config {
     }
 
     object Projects {
-        // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy
-        const val BYTE_BUDDY = "net.bytebuddy:byte-buddy:${Versions.BYTE_BUDDY}"
-
         const val JAVET = "com.caoccao.javet:javet:${Versions.JAVET}"
         const val JAVET_LINUX_ARM64 = "com.caoccao.javet:javet-linux-arm64:${Versions.JAVET}"
         const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
+
+        // https://mvnrepository.com/artifact/com.caoccao.javet.buddy/javet-buddy
+        const val JAVET_BUDDY = "com.caoccao.javet.buddy:javet-buddy:${Versions.JAVET_BUDDY}"
 
         // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
         const val JUNIT_JUPITER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT}"
@@ -67,8 +67,9 @@ object Config {
     object Versions {
         const val BYTE_BUDDY = "1.14.10"
         const val JAVA_VERSION = "1.8"
-        const val JAVET = "3.1.2"
-        const val JAVENODE = "0.7.0"
+        const val JAVET = "3.1.8"
+        const val JAVET_BUDDY = "0.2.0"
+        const val JAVENODE = "0.8.0"
         const val JUNIT = "5.10.1"
         const val VERTX = "4.4.6"
     }
@@ -104,13 +105,16 @@ dependencies {
     val os = OperatingSystem.current()
     val cpuArch = System.getProperty("os.arch")
     if (os.isMacOsX) {
-        implementation(Config.Projects.JAVET_MACOS)
+        compileOnly(Config.Projects.JAVET_MACOS)
+        testImplementation(Config.Projects.JAVET_MACOS)
     } else if (os.isLinux && (cpuArch == "aarch64" || cpuArch == "arm64")) {
-        implementation(Config.Projects.JAVET_LINUX_ARM64)
+        compileOnly(Config.Projects.JAVET_LINUX_ARM64)
+        testImplementation(Config.Projects.JAVET_LINUX_ARM64)
     } else {
-        implementation(Config.Projects.JAVET)
+        compileOnly(Config.Projects.JAVET)
+        testImplementation(Config.Projects.JAVET)
     }
-    implementation(Config.Projects.BYTE_BUDDY)
+    implementation(Config.Projects.JAVET_BUDDY)
     implementation(Config.Projects.VERTX)
     testImplementation(Config.Projects.JUNIT_JUPITER_API)
     testRuntimeOnly(Config.Projects.JUNIT_JUPITER_ENGINE)

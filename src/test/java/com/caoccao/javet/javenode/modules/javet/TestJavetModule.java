@@ -17,10 +17,10 @@
 package com.caoccao.javet.javenode.modules.javet;
 
 import com.caoccao.javet.annotations.V8Function;
+import com.caoccao.javet.buddy.interop.proxy.JavetReflectionObjectFactory;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interfaces.IJavetAnonymous;
 import com.caoccao.javet.interop.converters.JavetProxyConverter;
-import com.caoccao.javet.interop.proxy.JavetReflectionObjectFactory;
 import com.caoccao.javet.javenode.BaseJNTestSuite;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 import org.junit.jupiter.api.Test;
@@ -103,11 +103,11 @@ public class TestJavetModule extends BaseJNTestSuite {
     public void testV8GC() throws JavetException {
         int initialCallbackContextCount = v8Runtime.getCallbackContextCount();
         v8Runtime.getGlobalObject().set("test", String.class);
-        assertEquals(initialCallbackContextCount + 6, v8Runtime.getCallbackContextCount());
-        v8Runtime.getGlobalObject().delete("test");
-        assertEquals(initialCallbackContextCount + 6, v8Runtime.getCallbackContextCount());
-        v8Runtime.getExecutor("javet.v8.gc()").executeVoid();
         assertEquals(initialCallbackContextCount + 7, v8Runtime.getCallbackContextCount());
+        v8Runtime.getGlobalObject().delete("test");
+        assertEquals(initialCallbackContextCount + 7, v8Runtime.getCallbackContextCount());
+        v8Runtime.getExecutor("javet.v8.gc()").executeVoid();
+        assertEquals(initialCallbackContextCount + 8, v8Runtime.getCallbackContextCount());
         v8Runtime.lowMemoryNotification();
         assertEquals(initialCallbackContextCount, v8Runtime.getCallbackContextCount());
     }
