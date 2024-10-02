@@ -16,11 +16,11 @@
 
 package com.caoccao.javet.javenode.modules.javet;
 
+import com.caoccao.javet.buddy.interop.proxy.JavetReflectionObjectFactory;
 import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.V8Host;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.interop.converters.JavetProxyConverter;
-import com.caoccao.javet.interop.proxy.JavetReflectionObjectFactory;
 import com.caoccao.javet.javenode.JNEventLoop;
 import com.caoccao.javet.javenode.enums.JNModuleType;
 

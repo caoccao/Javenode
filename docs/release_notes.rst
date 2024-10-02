@@ -5,7 +5,8 @@ Release Notes
 0.8.0
 -----
 
-* Upgraded Javet to v3.1.4
+* Upgraded Javet to v3.1.8
+* Added JavetBuddy v0.2.0
 
 0.7.0
 -----
