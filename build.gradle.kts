@@ -47,9 +47,17 @@ object Config {
     }
 
     object Projects {
-        const val JAVET = "com.caoccao.javet:javet:${Versions.JAVET}"
-        const val JAVET_LINUX_ARM64 = "com.caoccao.javet:javet-linux-arm64:${Versions.JAVET}"
-        const val JAVET_MACOS = "com.caoccao.javet:javet-macos:${Versions.JAVET}"
+        const val JAVET = "com.caoccao.javet:javet-core:${Versions.JAVET}"
+        const val JAVET_NODE_LINUX_ARM64 = "com.caoccao.javet:javet-node-linux-arm64:${Versions.JAVET}"
+        const val JAVET_NODE_LINUX_X86_64 = "com.caoccao.javet:javet-node-linux-x86_64:${Versions.JAVET}"
+        const val JAVET_NODE_MACOS_ARM64 = "com.caoccao.javet:javet-node-macos-arm64:${Versions.JAVET}"
+        const val JAVET_NODE_MACOS_X86_64 = "com.caoccao.javet:javet-node-macos-x86_64:${Versions.JAVET}"
+        const val JAVET_NODE_WINDOWS_X86_64 = "com.caoccao.javet:javet-node-windows-x86_64:${Versions.JAVET}"
+        const val JAVET_V8_LINUX_ARM64 = "com.caoccao.javet:javet-v8-linux-arm64:${Versions.JAVET}"
+        const val JAVET_V8_LINUX_X86_64 = "com.caoccao.javet:javet-v8-linux-x86_64:${Versions.JAVET}"
+        const val JAVET_V8_MACOS_ARM64 = "com.caoccao.javet:javet-v8-macos-arm64:${Versions.JAVET}"
+        const val JAVET_V8_MACOS_X86_64 = "com.caoccao.javet:javet-v8-macos-x86_64:${Versions.JAVET}"
+        const val JAVET_V8_WINDOWS_X86_64 = "com.caoccao.javet:javet-v8-windows-x86_64:${Versions.JAVET}"
 
         // https://mvnrepository.com/artifact/com.caoccao.javet.buddy/javet-buddy
         const val JAVET_BUDDY = "com.caoccao.javet.buddy:javet-buddy:${Versions.JAVET_BUDDY}"
@@ -67,9 +75,9 @@ object Config {
     object Versions {
         const val BYTE_BUDDY = "1.14.10"
         const val JAVA_VERSION = "1.8"
-        const val JAVET = "3.1.8"
+        const val JAVET = "4.0.0"
         const val JAVET_BUDDY = "0.2.0"
-        const val JAVENODE = "0.8.0"
+        const val JAVENODE = "0.9.0"
         const val JUNIT = "5.10.1"
         const val VERTX = "4.4.6"
     }
@@ -104,15 +112,38 @@ java {
 dependencies {
     val os = OperatingSystem.current()
     val cpuArch = System.getProperty("os.arch")
-    if (os.isMacOsX) {
-        compileOnly(Config.Projects.JAVET_MACOS)
-        testImplementation(Config.Projects.JAVET_MACOS)
-    } else if (os.isLinux && (cpuArch == "aarch64" || cpuArch == "arm64")) {
-        compileOnly(Config.Projects.JAVET_LINUX_ARM64)
-        testImplementation(Config.Projects.JAVET_LINUX_ARM64)
-    } else {
-        compileOnly(Config.Projects.JAVET)
-        testImplementation(Config.Projects.JAVET)
+    val isArm64 = cpuArch == "aarch64" || cpuArch == "arm64";
+    compileOnly(Config.Projects.JAVET)
+    testImplementation(Config.Projects.JAVET)
+    if (os.isLinux) {
+        if (isArm64) {
+            compileOnly(Config.Projects.JAVET_NODE_LINUX_ARM64)
+            testImplementation(Config.Projects.JAVET_NODE_LINUX_ARM64)
+            compileOnly(Config.Projects.JAVET_V8_LINUX_ARM64)
+            testImplementation(Config.Projects.JAVET_V8_LINUX_ARM64)
+        } else {
+            compileOnly(Config.Projects.JAVET_NODE_LINUX_X86_64)
+            testImplementation(Config.Projects.JAVET_NODE_LINUX_X86_64)
+            compileOnly(Config.Projects.JAVET_V8_LINUX_X86_64)
+            testImplementation(Config.Projects.JAVET_V8_LINUX_X86_64)
+        }
+    } else if (os.isMacOsX) {
+        if (isArm64) {
+            compileOnly(Config.Projects.JAVET_NODE_MACOS_ARM64)
+            testImplementation(Config.Projects.JAVET_NODE_MACOS_ARM64)
+            compileOnly(Config.Projects.JAVET_V8_MACOS_ARM64)
+            testImplementation(Config.Projects.JAVET_V8_MACOS_ARM64)
+        } else {
+            compileOnly(Config.Projects.JAVET_NODE_MACOS_X86_64)
+            testImplementation(Config.Projects.JAVET_NODE_MACOS_X86_64)
+            compileOnly(Config.Projects.JAVET_V8_MACOS_X86_64)
+            testImplementation(Config.Projects.JAVET_V8_MACOS_X86_64)
+        }
+    } else if (os.isWindows && !isArm64) {
+        compileOnly(Config.Projects.JAVET_NODE_WINDOWS_X86_64)
+        testImplementation(Config.Projects.JAVET_NODE_WINDOWS_X86_64)
+        compileOnly(Config.Projects.JAVET_V8_WINDOWS_X86_64)
+        testImplementation(Config.Projects.JAVET_V8_WINDOWS_X86_64)
     }
     implementation(Config.Projects.JAVET_BUDDY)
     implementation(Config.Projects.VERTX)
